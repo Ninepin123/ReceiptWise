@@ -176,29 +176,29 @@
   gap: 16px;
 }
 
-.demo-pill {
-  font-size: 11px;
-  color: #777990;
-  background: #f6f5fb;
-  border: 1px solid #efedf7;
-  padding: 7px 10px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.demo-pill span {
-  width: 6px;
-  height: 6px;
-  background: #f0ad56;
-  border-radius: 50%;
-}
-
 .top-avatar {
   width: 31px;
   height: 31px;
   font-size: 12px;
+}
+
+.top-avatar-link {
+  display: inline-flex;
+  border-radius: 50%;
+}
+
+.profile-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+  border-radius: 10px;
+}
+
+/* 手機版底部導覽（電腦版隱藏，樣式在 responsive.css） */
+.mobile-nav {
+  display: none;
 }
 
 .mobile-brand {

@@ -63,6 +63,16 @@
   color: #b0b0c0!important;
 }
 
+/* 月份篩選下拉 */
+.month-filter {
+  border: 1px solid #ecebf4;
+  border-radius: 8px;
+  padding: 9px 10px;
+  color: #777990;
+  font-size: 11px;
+  background: #fff;
+}
+
 .table-action {
   display: inline-grid;
   place-items: center;

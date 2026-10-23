@@ -1,208 +1,515 @@
-/* 對獎頁面：獎號輸入、對獎結果 */
-.feature-tag {
+/* 對獎頁面：對獎結果、下次開獎卡、期別標籤、獎號與我的發票 */
+
+/* 按鈕內的轉圈動畫（處理中） */
+.btn-spin {
+  animation: lottery-spin 1s linear infinite;
+}
+
+@keyframes lottery-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- 對獎結果提示 ---- */
+.check-result-win {
+  background: #fff7e8;
+  border-color: #f3ddb8;
+  color: #a06a1c;
+}
+
+.check-error {
+  background: #fdf0ef;
+  border-color: #f5d9d7;
+  color: #c0564e;
+}
+
+/* ---- 載入／錯誤狀態 ---- */
+.lottery-state {
   display: flex;
   align-items: center;
-  gap: 7px;
-  color: #7568df;
-  background: #f0efff;
-  padding: 9px 12px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.lottery-layout {
-  display: grid;
-  grid-template-columns: minmax(300px, .9fr) minmax(0, 1.1fr);
-  gap: 20px;
-  align-items: start;
-}
-
-.lottery-input-panel .panel-heading {
-  margin-bottom: 22px;
-}
-
-.lottery-input-panel > .form-field {
-  margin-bottom: 20px;
-}
-
-.prize-field {
-  border: 1px solid #f0edf8;
-  border-radius: 9px;
-  padding: 12px 13px;
-  margin-bottom: 12px;
-  background: #fff;
-}
-
-.prize-field label {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 9px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #67687e;
-}
-
-.prize-field label b {
-  font-size: 10px;
-  color: #a0a1b2;
-}
-
-.prize-field input {
-  border: 0;
-  outline: 0;
-  width: 100%;
+  gap: 10px;
+  padding: 30px 23px;
+  color: #898ba1;
   font-size: 12px;
-  color: #414258;
 }
 
-.special-prize {
-  border-left: 3px solid #e9b45f;
+.lottery-state-error {
+  flex-wrap: wrap;
+  color: #c0564e;
 }
 
-.grand-prize {
-  border-left: 3px solid #9b87e9;
+.lottery-state-error p {
+  flex: 1;
+  min-width: 200px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
 }
 
-.first-prize {
-  border-left: 3px solid #6e9eea;
-}
-
-.other-prize {
-  border-left: 3px solid #c7c3df;
-}
-
-.lottery-input-panel > .btn-primary {
-  margin-top: 8px;
-}
-
-.result-count {
-  font-size: 10px;
-  color: #7770ce;
-  background: #f0efff;
-  border-radius: 20px;
-  padding: 6px 10px;
-}
-
-.lottery-empty {
+/* ---- 下次開獎卡 ---- */
+.next-draw-card {
   display: flex;
   align-items: center;
-  flex-direction: column;
-  text-align: center;
-  padding: 50px 12px 45px;
+  gap: 13px;
+  background: #fff;
+  border: 1px solid #eeedf5;
+  border-radius: 13px;
+  padding: 16px 19px;
+  margin-bottom: 16px;
+  box-shadow: 0 3px 12px #29215a03;
 }
 
-.lottery-empty-icon {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: #f4f2ff;
-  color: #9b90ed;
-  display: grid;
-  place-items: center;
-  margin-bottom: 17px;
-}
-
-.lottery-empty b {
-  font-size: 13px;
-  margin-bottom: 8px;
-}
-
-.lottery-empty p {
-  font-size: 11px;
-  color: #9b9caf;
-  margin: 0 0 14px;
-}
-
-.lottery-empty small {
-  font-size: 10px;
-  color: #aaaabd;
-}
-
-.lottery-disclaimer {
-  border-top: 1px solid #f0eff7;
-  padding-top: 15px;
-  margin-top: 15px;
-  font-size: 10px;
-  color: #a1a2b3;
-  line-height: 1.8;
-}
-
-.lottery-result-list {
-  display: grid;
-  gap: 0;
-}
-
-.lottery-result-row {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 14px 0;
-  border-bottom: 1px solid #f0eff7;
-}
-
-.result-status-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+.next-draw-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #eeebff;
+  color: #7163e9;
   display: grid;
   place-items: center;
   flex-shrink: 0;
 }
 
-.result-status-icon.matched {
-  background: #e4f8f0;
-  color: #31a984;
-}
-
-.result-status-icon.unmatched {
-  background: #fff1e7;
-  color: #e39a62;
-}
-
-.result-main {
+.next-draw-copy {
   display: grid;
-  gap: 5px;
+  gap: 4px;
   min-width: 0;
   flex: 1;
 }
 
-.result-main b {
-  font-size: 11px;
-}
-
-.result-main span,
-.result-main small {
+.next-draw-label {
   font-size: 10px;
-  color: #999aae;
-  overflow-wrap: anywhere;
+  color: #a0a1b3;
+  font-weight: 700;
+  letter-spacing: .8px;
 }
 
-.result-actions {
+.next-draw-copy b {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.next-draw-countdown {
+  font-size: 11px;
+  font-weight: 700;
+  color: #7770ce;
+  background: #f0efff;
+  border-radius: 20px;
+  padding: 7px 12px;
+  white-space: nowrap;
+}
+
+.next-draw-countdown.today {
+  color: #a06a1c;
+  background: #fff1d6;
+}
+
+.next-draw-side {
   display: grid;
-  gap: 6px;
+  gap: 4px;
+  justify-items: end;
+  padding-left: 16px;
+  border-left: 1px solid #f1f0f7;
+  white-space: nowrap;
+}
+
+.next-draw-side span {
+  font-size: 10px;
+  color: #a0a1b3;
+}
+
+.next-draw-side b {
+  font-size: 12px;
+  color: #5a4bd9;
+}
+
+/* ---- 期別標籤（橫向捲動） ---- */
+.period-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 12px;
+  margin-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.period-tab {
+  border: 1px solid #e7e6f0;
+  background: #fff;
+  color: #777990;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: .18s;
+}
+
+.period-tab:hover {
+  background: #f8f7ff;
+  color: var(--purple);
+}
+
+.period-tab.active {
+  background: linear-gradient(120deg, #7165ed, #5b4bdc);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ---- 版面：左邊獎號、右邊我的發票 ---- */
+.lottery-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, .95fr) minmax(0, 1.05fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.draw-updated {
+  font-size: 9px;
+  color: #b2b3c4;
+  white-space: nowrap;
+}
+
+/* ---- 獎號 ---- */
+.draw-number-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 12px;
+  border: 1px solid #f0edf8;
+  border-radius: 10px;
+  background: #fff;
+  margin-bottom: 10px;
+}
+
+.draw-number-row.special {
+  border-left: 3px solid #e9b45f;
+}
+
+.draw-number-row.grand {
+  border-left: 3px solid #9b87e9;
+}
+
+.draw-number-row.first {
+  border-left: 3px solid #6e9eea;
+}
+
+.draw-number-label {
+  display: grid;
+  gap: 3px;
+}
+
+.draw-number-label b {
+  font-size: 12px;
+}
+
+.draw-number-label small {
+  font-size: 10px;
+  color: #a0a1b2;
+}
+
+.draw-number {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: #414258;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.draw-number-sm {
+  font-size: 16px;
+  letter-spacing: 1.8px;
+}
+
+.draw-first-list {
+  display: grid;
+  gap: 5px;
   justify-items: end;
 }
 
-.result-actions > b {
-  font-size: 10px;
-  color: #9b9caf;
+/* ---- 對獎規則（可收合） ---- */
+.rules-section {
+  margin-top: 14px;
 }
 
-.mini-save {
+.rules-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: #f8f7ff;
+  color: #6d6e84;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  transition: .18s;
+}
+
+.rules-toggle:hover {
+  background: #f0efff;
+  color: var(--purple);
+}
+
+.rules-chevron {
+  transition: transform .18s;
+}
+
+.rules-chevron.open {
+  transform: rotate(180deg);
+}
+
+.rules-table-wrap {
+  margin-top: 10px;
+  border: 1px solid #f0edf8;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.rules-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+}
+
+.rules-table th {
+  text-align: left;
+  font-size: 10px;
+  color: #898ba1;
+  padding: 9px 11px;
+  border-bottom: 1px solid #f0edf8;
+  white-space: nowrap;
+}
+
+.rules-table td {
+  padding: 8px 11px;
+  border-bottom: 1px solid #f6f5fb;
+  color: #5f6076;
+  line-height: 1.6;
+}
+
+.rules-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.rules-table td b {
+  color: #414258;
+  white-space: nowrap;
+}
+
+.rules-table .amount {
+  text-align: right;
+  font-weight: 700;
+  color: #5a4bd9;
+  white-space: nowrap;
+}
+
+/* ---- 我的發票 ---- */
+.my-section-title {
   display: flex;
   align-items: center;
-  gap: 3px;
-  border: 0;
-  border-radius: 5px;
-  padding: 5px 7px;
-  color: #6c61d9;
-  background: #f1efff;
-  font-size: 9px;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  margin: 16px 0 11px;
 }
 
-.rerun {
-  margin-top: 15px;
+.my-section-title:first-child {
+  margin-top: 0;
+}
+
+.my-section-title.win {
+  color: #a06a1c;
+}
+
+.my-section-title.muted {
+  color: #898ba1;
+}
+
+.my-section-title .count {
+  font-size: 10px;
+  background: #f4f3fa;
+  color: #777990;
+  border-radius: 12px;
+  padding: 3px 8px;
+}
+
+.my-section-title.win .count {
+  background: #fdf1da;
+  color: #a06a1c;
+}
+
+/* 中獎卡片：末 N 碼用紅色醒目標示 */
+.win-card-list {
+  display: grid;
+  gap: 12px;
+}
+
+.win-card {
+  border: 1px solid #f2e3c2;
+  background: linear-gradient(135deg, #fffcf5, #fdf6e7);
+  border-radius: 12px;
+  padding: 15px 16px;
+}
+
+.win-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+
+.win-prize-chip {
+  background: #f5e2b8;
+  color: #9a6b16;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 6px;
+  padding: 5px 10px;
+}
+
+.win-amount {
+  font-size: 16px;
+  font-weight: 800;
+  color: #a06a1c;
+}
+
+.win-number {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #414258;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.win-digits {
+  color: #d64545;
+}
+
+.win-meta {
+  font-size: 10px;
+  color: #9b9caf;
+  margin-top: 6px;
+}
+
+.win-claim {
+  font-size: 10px;
+  color: #b5853a;
+  background: #fdf6e7;
+  border-radius: 7px;
+  padding: 7px 9px;
+  margin-top: 9px;
+  line-height: 1.6;
+}
+
+/* 未中獎精簡清單 */
+.plain-invoice-list {
+  display: grid;
+}
+
+.plain-invoice-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f6f5fb;
+  font-size: 11px;
+}
+
+.plain-invoice-row:last-child {
+  border-bottom: 0;
+}
+
+.plain-number {
+  font-weight: 700;
+  color: #414258;
+  letter-spacing: .5px;
+  white-space: nowrap;
+}
+
+.plain-seller {
+  flex: 1;
+  min-width: 0;
+  color: #898ba1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plain-invoice-row small {
+  color: #b2b3c4;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* 待對獎提示 */
+.pending-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: #f0efff;
+  border: 1px solid #e6e3ff;
+  color: #7770c5;
+  border-radius: 9px;
+  padding: 11px 13px;
+  font-size: 11px;
+  line-height: 1.7;
+  margin-top: 14px;
+}
+
+.pending-hint svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* 空狀態 */
+.lottery-empty {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 40px 12px 30px;
+}
+
+.lottery-empty-icon {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: #f4f2ff;
+  color: #9b90ed;
+  display: grid;
+  place-items: center;
+  margin-bottom: 15px;
+}
+
+.lottery-empty b {
+  font-size: 13px;
+  margin-bottom: 7px;
+}
+
+.lottery-empty p {
+  font-size: 11px;
+  color: #9b9caf;
+  margin: 0 0 15px;
+  line-height: 1.7;
+}
+
+/* 頁尾聲明 */
+.lottery-disclaimer {
+  border-top: 1px solid #f0eff7;
+  padding-top: 15px;
+  margin-top: 18px;
+  font-size: 10px;
+  color: #a1a2b3;
+  line-height: 1.8;
 }

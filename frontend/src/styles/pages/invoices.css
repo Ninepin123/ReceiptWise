@@ -72,14 +72,40 @@
   letter-spacing: .3px;
 }
 
-.status-select {
-  border: 1px solid #eeeaf8;
-  border-radius: 6px;
-  padding: 6px;
-  background: #faf9ff;
-  color: #7770c6;
+/* 中獎張數下方的總獎金 */
+.prize-sum {
+  margin-top: 4px;
+  color: #c48c4f;
+}
+
+/* 對獎狀態徽章 */
+.prize-badge {
+  display: inline-block;
   font-size: 10px;
-  max-width: 90px;
+  border-radius: 6px;
+  padding: 5px 8px;
+  white-space: nowrap;
+}
+
+.prize-badge.won {
+  color: #2da140;
+  background: #e6f8ec;
+  font-weight: 700;
+}
+
+.prize-badge.not-won {
+  color: #8b8ca0;
+  background: #f2f2f6;
+}
+
+.prize-badge.pending {
+  color: #4d89d8;
+  background: #e8f3ff;
+}
+
+.prize-badge.due {
+  color: #c48c4f;
+  background: #fff4e5;
 }
 
 .bottom-notice {

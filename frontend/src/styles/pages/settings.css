@@ -84,6 +84,21 @@
   background: #fff4e5;
 }
 
+.status-chip.error {
+  color: #c0564e;
+  background: #fdf0ef;
+}
+
+.logout-button {
+  color: #c0564e;
+  border-color: #f2d9d6;
+}
+
+.logout-button:hover {
+  background: #fdf0ef;
+  color: #b04a43;
+}
+
 .settings-warning {
   display: flex;
   gap: 10px;
@@ -102,4 +117,12 @@
 
 .settings-warning p {
   margin: 0;
+}
+
+/* 通知被封鎖／不支援時的說明文字 */
+.notify-hint {
+  font-size: 10px;
+  color: #b4864f;
+  line-height: 1.7;
+  max-width: 170px;
 }

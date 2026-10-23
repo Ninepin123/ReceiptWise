@@ -1,71 +1,115 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { Plus, Search, Pencil, Trash2, X, ReceiptText, ArrowRight } from 'lucide-vue-next'
-import { getInvoices, saveInvoices, money } from '../api'
+import { Plus, Search, Pencil, Trash2, X, ReceiptText, ArrowRight, Trophy } from 'lucide-vue-next'
+import { useLedgerStore } from '../stores/ledger'
+import { money, formatInvoiceNumber, normalizeInvoiceNumber, isValidInvoiceNumber } from '../utils/format'
+import { drawDate, periodOf, todayInTaipei } from '../utils/period'
 
-const rows = ref(getInvoices())
+const ledger = useLedgerStore()
 const query = ref('')
 const showForm = ref(false)
 const editingId = ref(null)
+const formError = ref('')
 const form = ref(blank())
 
-// 表單的空白欄位樣板
 function blank() {
   return {
     number: '',
-    date: new Date().toISOString().slice(0, 10),
+    date: todayInTaipei(),
     amount: '',
     seller: '',
-    randomCode: '',
-    status: '待核對'
+    randomCode: ''
   }
 }
 
-// 依關鍵字過濾發票，再按日期由新到舊排序
+// 依關鍵字過濾（ledger 已依日期新到舊排序）
 const filtered = computed(() =>
-  rows.value
-    .filter(i => `${i.number} ${i.seller}`.toLowerCase().includes(query.value.toLowerCase()))
-    .sort((a, b) => b.date.localeCompare(a.date))
+  ledger.invoices.filter((i) =>
+    `${i.number} ${i.seller}`.toLowerCase().includes(query.value.toLowerCase())
+  )
 )
 
-// 發票總金額
-const total = computed(() => rows.value.reduce((s, i) => s + Number(i.amount), 0))
+// 統計：總張數、總金額、中獎張數與總獎金
+const totalCount = computed(() => ledger.invoices.length)
+const totalAmount = computed(() => ledger.invoices.reduce((s, i) => s + Number(i.amount || 0), 0))
+const wonInvoices = computed(() => ledger.invoices.filter((i) => i.prizeStatus === 'won'))
+const prizeTotal = computed(() => wonInvoices.value.reduce((s, i) => s + Number(i.prizeAmount || 0), 0))
+
+// 對獎狀態徽章（不可手動修改）
+function prizeBadge(inv) {
+  if (inv.prizeStatus === 'won') {
+    return { cls: 'won', text: `中獎 · ${inv.prizeName || '中獎'} ${money(inv.prizeAmount || 0)}` }
+  }
+  if (inv.prizeStatus === 'not_won') {
+    return { cls: 'not-won', text: '未中獎' }
+  }
+  const date = drawDate(inv.period || periodOf(inv.date))
+  if (date > todayInTaipei()) {
+    const [, m, d] = date.split('-').map(Number)
+    return { cls: 'pending', text: `待開獎 ${m}/${d}` }
+  }
+  return { cls: 'due', text: '待對獎' }
+}
 
 function openNew() {
   editingId.value = null
   form.value = blank()
+  formError.value = ''
   showForm.value = true
 }
 
-function edit(i) {
-  editingId.value = i.id
-  form.value = { ...i }
-  showForm.value = true
-}
-
-// 新增或更新一筆發票
-function submit() {
-  if (!form.value.number.trim() || !form.value.date || Number(form.value.amount) < 0)
-    return alert('請填寫發票號碼、日期與有效金額')
-  const item = {
-    ...form.value,
-    id: editingId.value ?? Date.now(),
-    amount: Number(form.value.amount),
-    number: form.value.number.trim().toUpperCase()
+function edit(inv) {
+  editingId.value = inv.id
+  form.value = {
+    number: inv.number,
+    date: inv.date,
+    amount: inv.amount,
+    seller: inv.seller || '',
+    randomCode: inv.randomCode || ''
   }
-  if (editingId.value) rows.value = rows.value.map(i => i.id === editingId.value ? item : i)
-  else rows.value.unshift(item)
-  saveInvoices(rows.value)
+  formError.value = ''
+  showForm.value = true
+}
+
+function submit() {
+  const number = normalizeInvoiceNumber(form.value.number)
+  if (!isValidInvoiceNumber(number)) {
+    formError.value = '發票號碼格式不正確（例如 AB-12345678）'
+    return
+  }
+  if (!form.value.date) {
+    formError.value = '請選擇開立日期'
+    return
+  }
+  const amount = Math.round(Number(form.value.amount))
+  if (!Number.isFinite(amount) || amount < 0) {
+    formError.value = '金額必須是 0 以上的整數'
+    return
+  }
+  const randomCode = (form.value.randomCode || '').trim()
+  if (randomCode && !/^\d{4}$/.test(randomCode)) {
+    formError.value = '隨機碼必須是 4 位數字'
+    return
+  }
+  // 本機已經有相同號碼的其他發票就擋下
+  if (ledger.invoices.some((i) => i.number === number && i.id !== editingId.value)) {
+    formError.value = '這張發票已經登錄過'
+    return
+  }
+  ledger.saveInvoice({
+    id: editingId.value ?? undefined,
+    number,
+    date: form.value.date,
+    amount,
+    seller: (form.value.seller || '').trim(),
+    randomCode
+  })
   showForm.value = false
 }
 
-// 確認後刪除一筆發票
 function remove(id) {
-  if (confirm('確定刪除此張發票？')) {
-    rows.value = rows.value.filter(i => i.id !== id)
-    saveInvoices(rows.value)
-  }
+  if (confirm('確定刪除此張發票？連動的收支會取消與發票的關聯。')) ledger.deleteInvoice(id)
 }
 </script>
 <template>
@@ -83,21 +127,22 @@ function remove(id) {
       <span class="summary-icon lavender"><ReceiptText /></span>
       <div>
         <small>發票總張數</small>
-        <b>{{ rows.length }} <em>張</em></b>
+        <b>{{ totalCount }} <em>張</em></b>
       </div>
     </div>
     <div class="invoice-summary">
       <span class="summary-icon mint"><span>$</span></span>
       <div>
         <small>發票總金額</small>
-        <b>{{ money(total) }}</b>
+        <b>{{ money(totalAmount) }}</b>
       </div>
     </div>
     <div class="invoice-summary">
-      <span class="summary-icon peach">◷</span>
+      <span class="summary-icon peach"><Trophy :size="21" /></span>
       <div>
-        <small>待核對發票</small>
-        <b>{{ rows.filter(i => i.status === '待核對').length }} <em>張</em></b>
+        <small>中獎張數</small>
+        <b>{{ wonInvoices.length }} <em>張</em></b>
+        <small class="prize-sum">總獎金 {{ money(prizeTotal) }}</small>
       </div>
     </div>
   </div>
@@ -106,7 +151,7 @@ function remove(id) {
     <div class="records-toolbar">
       <div>
         <h3>發票清單</h3>
-        <p class="subheading">可新增、編輯與刪除本機發票資料</p>
+        <p class="subheading">對獎狀態由系統自動更新</p>
       </div>
       <div class="search-box">
         <Search :size="17" />
@@ -121,24 +166,19 @@ function remove(id) {
             <th>開立日期</th>
             <th>店家 / 開立人</th>
             <th>隨機碼</th>
-            <th>核對狀態</th>
+            <th>對獎狀態</th>
             <th class="align-right">金額</th>
             <th class="align-right">操作</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="i in filtered" :key="i.id">
-            <td><span class="invoice-number">{{ i.number }}</span></td>
+            <td><span class="invoice-number">{{ formatInvoiceNumber(i.number) }}</span></td>
             <td>{{ i.date }}</td>
             <td>{{ i.seller || '—' }}</td>
             <td>{{ i.randomCode || '—' }}</td>
             <td>
-              <select class="status-select" v-model="i.status" @change="saveInvoices(rows)">
-                <option>待核對</option>
-                <option>已核對</option>
-                <option>中獎</option>
-                <option>未中獎</option>
-              </select>
+              <span class="prize-badge" :class="prizeBadge(i).cls">{{ prizeBadge(i).text }}</span>
             </td>
             <td class="align-right amount-cell">{{ money(i.amount) }}</td>
             <td class="align-right">
@@ -152,15 +192,10 @@ function remove(id) {
         </tbody>
       </table>
     </div>
-    <div class="table-foot">共 {{ rows.length }} 張發票
+    <div class="table-foot">共 {{ totalCount }} 張發票
       <RouterLink to="/scanner">前往 QR 掃描輔助 <ArrowRight :size="13" /></RouterLink>
     </div>
   </section>
-
-  <div class="notice-strip bottom-notice">
-    <span class="notice-icon">ⓘ</span>
-    <span>此頁面為前端示範；發票資料暫存在瀏覽器，不會自動從財政部或電子發票平台匯入。</span>
-  </div>
 
   <div v-if="showForm" class="modal-backdrop" @click.self="showForm = false">
     <section class="modal-card">
@@ -182,7 +217,7 @@ function remove(id) {
         </div>
         <div class="form-field">
           <label>金額（NT$）*</label>
-          <input v-model="form.amount" type="number" min="0" required placeholder="0" />
+          <input v-model="form.amount" type="number" min="0" step="1" required placeholder="0" />
         </div>
         <div class="form-field">
           <label>店家 / 開立人</label>
@@ -190,17 +225,9 @@ function remove(id) {
         </div>
         <div class="form-field">
           <label>隨機碼</label>
-          <input v-model="form.randomCode" maxlength="4" placeholder="4 位數（選填）" />
+          <input v-model="form.randomCode" maxlength="4" inputmode="numeric" placeholder="4 位數（選填）" />
         </div>
-        <div class="form-field">
-          <label>核對狀態</label>
-          <select v-model="form.status">
-            <option>待核對</option>
-            <option>已核對</option>
-            <option>中獎</option>
-            <option>未中獎</option>
-          </select>
-        </div>
+        <p v-if="formError" class="error-text full">{{ formError }}</p>
         <div class="modal-actions full">
           <button type="button" class="btn-secondary" @click="showForm = false">取消</button>
           <button class="btn-primary" type="submit">儲存發票</button>
