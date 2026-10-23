@@ -1,0 +1,208 @@
+/* 對獎頁面：獎號輸入、對獎結果 */
+.feature-tag {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #7568df;
+  background: #f0efff;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.lottery-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, .9fr) minmax(0, 1.1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.lottery-input-panel .panel-heading {
+  margin-bottom: 22px;
+}
+
+.lottery-input-panel > .form-field {
+  margin-bottom: 20px;
+}
+
+.prize-field {
+  border: 1px solid #f0edf8;
+  border-radius: 9px;
+  padding: 12px 13px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+
+.prize-field label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #67687e;
+}
+
+.prize-field label b {
+  font-size: 10px;
+  color: #a0a1b2;
+}
+
+.prize-field input {
+  border: 0;
+  outline: 0;
+  width: 100%;
+  font-size: 12px;
+  color: #414258;
+}
+
+.special-prize {
+  border-left: 3px solid #e9b45f;
+}
+
+.grand-prize {
+  border-left: 3px solid #9b87e9;
+}
+
+.first-prize {
+  border-left: 3px solid #6e9eea;
+}
+
+.other-prize {
+  border-left: 3px solid #c7c3df;
+}
+
+.lottery-input-panel > .btn-primary {
+  margin-top: 8px;
+}
+
+.result-count {
+  font-size: 10px;
+  color: #7770ce;
+  background: #f0efff;
+  border-radius: 20px;
+  padding: 6px 10px;
+}
+
+.lottery-empty {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 50px 12px 45px;
+}
+
+.lottery-empty-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: #f4f2ff;
+  color: #9b90ed;
+  display: grid;
+  place-items: center;
+  margin-bottom: 17px;
+}
+
+.lottery-empty b {
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.lottery-empty p {
+  font-size: 11px;
+  color: #9b9caf;
+  margin: 0 0 14px;
+}
+
+.lottery-empty small {
+  font-size: 10px;
+  color: #aaaabd;
+}
+
+.lottery-disclaimer {
+  border-top: 1px solid #f0eff7;
+  padding-top: 15px;
+  margin-top: 15px;
+  font-size: 10px;
+  color: #a1a2b3;
+  line-height: 1.8;
+}
+
+.lottery-result-list {
+  display: grid;
+  gap: 0;
+}
+
+.lottery-result-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0eff7;
+}
+
+.result-status-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.result-status-icon.matched {
+  background: #e4f8f0;
+  color: #31a984;
+}
+
+.result-status-icon.unmatched {
+  background: #fff1e7;
+  color: #e39a62;
+}
+
+.result-main {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  flex: 1;
+}
+
+.result-main b {
+  font-size: 11px;
+}
+
+.result-main span,
+.result-main small {
+  font-size: 10px;
+  color: #999aae;
+  overflow-wrap: anywhere;
+}
+
+.result-actions {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+}
+
+.result-actions > b {
+  font-size: 10px;
+  color: #9b9caf;
+}
+
+.mini-save {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  border: 0;
+  border-radius: 5px;
+  padding: 5px 7px;
+  color: #6c61d9;
+  background: #f1efff;
+  font-size: 9px;
+}
+
+.rerun {
+  margin-top: 15px;
+}

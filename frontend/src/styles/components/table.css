@@ -1,0 +1,109 @@
+/* 資料表格：表格、交易列、類別標籤、金額欄 */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.data-table th {
+  background: #fafaff;
+  color: #a0a1b3;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 12px 13px;
+}
+
+.data-table td {
+  border-bottom: 1px solid #f1f0f7;
+  padding: 13px;
+  font-size: 11px;
+  color: #73758c;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.data-table tbody tr:hover {
+  background: #fcfbff;
+}
+
+.align-right {
+  text-align: right!important;
+}
+
+.transaction-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #414258;
+  font-weight: 600;
+}
+
+.transaction-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+}
+
+.transaction-badge.expense {
+  background: #fff0e8;
+  color: #e49a66;
+}
+
+.transaction-badge.income {
+  background: #e5f8f0;
+  color: #37ad88;
+}
+
+.category-chip {
+  background: #f5f4fb;
+  color: #82839a;
+  border-radius: 5px;
+  padding: 5px 8px;
+  font-size: 10px;
+}
+
+.type-label {
+  font-size: 10px;
+  border-radius: 5px;
+  padding: 5px 7px;
+}
+
+.type-label.income {
+  color: #2ea580;
+  background: #e7f8f1;
+}
+
+.type-label.expense {
+  color: #e28d59;
+  background: #fff1e7;
+}
+
+.amount-cell {
+  font-weight: 700!important;
+  color: #414258!important;
+}
+
+.amount-cell.income {
+  color: #2ba47d!important;
+}
+
+.amount-cell.expense {
+  color: #e38b58!important;
+}
+
+.empty-state {
+  text-align: center!important;
+  padding: 30px!important;
+  color: #a1a2b3!important;
+}

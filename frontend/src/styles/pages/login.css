@@ -1,0 +1,225 @@
+/* 登入頁面：左側宣傳區、登入表單 */
+.login-shell {
+  min-height: 100vh;
+  background: #fff;
+}
+
+.login-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.login-promo {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 38px 8%;
+  color: #fff;
+  background: linear-gradient(145deg, #6558e8 0%, #5547d2 52%, #4034ae 100%);
+}
+
+.brand-light {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+}
+
+.brand-light .brand-mark {
+  background: #ffffff20;
+  box-shadow: none;
+  border: 1px solid #ffffff30;
+}
+
+.brand-light small {
+  color: #d5d1ff;
+}
+
+.promo-copy {
+  position: relative;
+  z-index: 1;
+  margin: auto 0 30px;
+  padding-top: 70px;
+}
+
+.promo-copy .eyebrow {
+  color: #c4bfff;
+  letter-spacing: 2px;
+}
+
+.promo-copy h1 {
+  font-size: clamp(30px, 3vw, 45px);
+  line-height: 1.5;
+  letter-spacing: 1px;
+  margin: 20px 0 15px;
+}
+
+.promo-copy p {
+  font-size: 13px;
+  color: #d9d6ff;
+  line-height: 1.9;
+}
+
+.promo-features {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 20px;
+  margin: 0 0 45px;
+}
+
+.promo-features > div {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.promo-features > div > svg {
+  width: 38px;
+  height: 38px;
+  padding: 10px;
+  border-radius: 11px;
+  background: #ffffff17;
+  color: #e2dfff;
+}
+
+.promo-features span {
+  display: grid;
+  gap: 5px;
+}
+
+.promo-features b {
+  font-size: 12px;
+}
+
+.promo-features small {
+  font-size: 10px;
+  color: #d1ccff;
+}
+
+.promo-decoration {
+  position: absolute;
+  border: 1px solid #ffffff12;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.deco-one {
+  width: 440px;
+  height: 440px;
+  right: -180px;
+  top: 15%;
+}
+
+.deco-two {
+  width: 320px;
+  height: 320px;
+  right: -110px;
+  top: 23%;
+}
+
+.login-form-side {
+  display: grid;
+  place-items: center;
+  padding: 40px 8%;
+}
+
+.login-form-wrap {
+  width: min(390px, 100%);
+}
+
+.form-heading {
+  text-align: center;
+  margin-bottom: 33px;
+}
+
+.form-heading h2 {
+  font-size: 26px;
+  margin: 0 0 9px;
+  letter-spacing: -.5px;
+}
+
+.form-heading p {
+  font-size: 12px;
+  color: #9a9bae;
+  margin: 0;
+}
+
+.login-form-wrap form {
+  display: grid;
+  gap: 10px;
+}
+
+.login-form-wrap label {
+  font-size: 11px;
+  color: #595a70;
+  font-weight: 700;
+  margin-top: 7px;
+}
+
+.login-form-wrap input {
+  border: 1px solid #e8e7f0;
+  border-radius: 8px;
+  padding: 13px 12px;
+  outline: 0;
+  font-size: 12px;
+}
+
+.login-form-wrap input:focus {
+  border-color: #8a7df0;
+  box-shadow: 0 0 0 3px #6558e812;
+}
+
+.login-submit {
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px;
+}
+
+.login-submit span {
+  margin-left: auto;
+  font-size: 17px;
+}
+
+.error-text {
+  margin: 0;
+  color: #d96862;
+  font-size: 11px;
+}
+
+.demo-note {
+  display: flex;
+  gap: 10px;
+  padding: 13px;
+  margin-top: 22px;
+  background: #f6f5ff;
+  border-radius: 9px;
+  color: #8278db;
+}
+
+.demo-note > span {
+  font-size: 17px;
+}
+
+.demo-note p {
+  font-size: 10px;
+  line-height: 1.8;
+  margin: 0;
+  color: #9290b1;
+}
+
+.demo-note b {
+  color: #6c61ce;
+}
+
+.login-copyright {
+  text-align: center;
+  color: #b4b4c4;
+  font-size: 9px;
+  margin-top: 45px;
+}
+
+.mobile-login-mark {
+  display: none;
+}

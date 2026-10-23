@@ -1,0 +1,157 @@
+/* 掃描頁面：掃描區、掃描框、提示與表單 */
+.scanner-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(310px, .9fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.scanner-main {
+  padding: 28px;
+}
+
+.scanner-title-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: #eeebff;
+  color: #6d5fe5;
+  display: grid;
+  place-items: center;
+  margin-bottom: 18px;
+}
+
+.scanner-main h2 {
+  font-size: 19px;
+  margin: 0 0 9px;
+}
+
+.scanner-intro {
+  color: #9697aa;
+  font-size: 11px;
+  line-height: 1.8;
+  margin: 0;
+  max-width: 470px;
+}
+
+.scan-placeholder {
+  margin-top: 25px;
+  border: 1px dashed #d9d5f5;
+  background: #faf9ff;
+  border-radius: 12px;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #7770c6;
+}
+
+.scan-frame {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  display: grid;
+  place-items: center;
+  color: #b2aafa;
+  margin-bottom: 4px;
+}
+
+.corner {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  border-color: #796be8;
+  border-style: solid;
+}
+
+.corner.tl {
+  left: 0;
+  top: 0;
+  border-width: 3px 0 0 3px;
+  border-radius: 7px 0 0;
+}
+
+.corner.tr {
+  right: 0;
+  top: 0;
+  border-width: 3px 3px 0 0;
+  border-radius: 0 7px 0 0;
+}
+
+.corner.bl {
+  left: 0;
+  bottom: 0;
+  border-width: 0 0 3px 3px;
+  border-radius: 0 0 0 7px;
+}
+
+.corner.br {
+  right: 0;
+  bottom: 0;
+  border-width: 0 3px 3px 0;
+  border-radius: 0 0 7px;
+}
+
+.scan-placeholder b {
+  font-size: 12px;
+}
+
+.scan-placeholder > span {
+  font-size: 10px;
+  color: #a3a0cb;
+}
+
+.scan-tips {
+  display: grid;
+  gap: 13px;
+  margin-top: 20px;
+}
+
+.scan-tips div {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #9999ad;
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.scan-tips svg {
+  flex-shrink: 0;
+  color: #9c92ed;
+}
+
+.scanner-form-panel {
+  padding: 24px;
+}
+
+.scanner-form-panel .panel-heading h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-stack {
+  display: grid;
+  gap: 17px;
+}
+
+.full-button {
+  width: 100%;
+  grid-column: 1/-1;
+}
+
+.centered {
+  display: flex;
+}
+
+.inline-notice {
+  margin: 0;
+  color: #6c61d9;
+  background: #f2f0ff;
+  border-radius: 7px;
+  padding: 10px;
+  font-size: 11px;
+}

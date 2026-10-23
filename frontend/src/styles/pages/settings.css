@@ -1,0 +1,105 @@
+/* 設定頁面：設定列、狀態標籤、警告區 */
+.settings-layout {
+  display: grid;
+  gap: 20px;
+  max-width: 1000px;
+}
+
+.settings-panel {
+  padding: 23px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 17px 0;
+  border-bottom: 1px solid #f1f0f7;
+}
+
+.setting-row:last-of-type {
+  border-bottom: 0;
+}
+
+.setting-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.setting-icon svg {
+  width: 19px;
+}
+
+.setting-icon.lavender {
+  background: #eeebff;
+  color: #7062e5;
+}
+
+.setting-icon.mint {
+  background: #e5f8f0;
+  color: #37a982;
+}
+
+.setting-icon.peach {
+  background: #fff0e7;
+  color: #e29a62;
+}
+
+.setting-copy {
+  display: grid;
+  gap: 6px;
+  flex: 1;
+}
+
+.setting-copy b {
+  font-size: 12px;
+}
+
+.setting-copy span {
+  font-size: 10px;
+  color: #9b9caf;
+  line-height: 1.7;
+}
+
+.setting-row > strong {
+  font-size: 11px;
+  color: #6960cc;
+}
+
+.status-chip {
+  font-size: 10px;
+  color: #329e7c;
+  background: #e6f8f0;
+  padding: 6px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.status-chip.pending {
+  color: #c48c4f;
+  background: #fff4e5;
+}
+
+.settings-warning {
+  display: flex;
+  gap: 10px;
+  background: #fff8ed;
+  color: #b4864f;
+  padding: 13px;
+  border-radius: 9px;
+  margin-top: 16px;
+  font-size: 10px;
+  line-height: 1.8;
+}
+
+.settings-warning svg {
+  flex-shrink: 0;
+}
+
+.settings-warning p {
+  margin: 0;
+}
