@@ -120,7 +120,7 @@
 @media (max-width: 600px) {
   .sidebar {
     width: 100%;
-    height: 62px;
+    height: 64px;
     inset: auto 0 0;
     flex-direction: row;
     padding: 6px 8px;
@@ -136,14 +136,20 @@
     display: none;
   }
 
-  .nav-list {
+  /* 手機版底部導覽只顯示 5 格（電腦版選單隱藏） */
+  .desktop-nav {
+    display: none;
+  }
+
+  .mobile-nav {
     display: flex;
     width: 100%;
     justify-content: space-around;
     gap: 0;
+    align-items: flex-end;
   }
 
-  .nav-item {
+  .mobile-nav .nav-item {
     display: flex;
     flex-direction: column;
     gap: 3px;
@@ -155,20 +161,39 @@
     border-radius: 7px;
   }
 
-  .nav-item svg {
+  .mobile-nav .nav-item svg {
     width: 18px;
     height: 18px;
   }
 
-  .nav-item span {
+  .mobile-nav .nav-item span {
     display: block;
     font-size: 9px;
     white-space: nowrap;
   }
 
+  /* 中間凸起的掃描主按鈕 */
+  .mobile-nav .nav-scan .scan-fab {
+    width: 46px;
+    height: 46px;
+    margin-top: -24px;
+    border-radius: 50%;
+    background: linear-gradient(140deg, #8276f5, #5748dc);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    border: 3px solid #fff;
+    box-shadow: 0 6px 14px #6558e84d;
+  }
+
+  .mobile-nav .nav-scan span:last-child {
+    color: #6558e8;
+    font-weight: 700;
+  }
+
   .main-area {
     margin-left: 0;
-    padding-bottom: 62px;
+    padding-bottom: 64px;
   }
 
   .topbar {
@@ -192,7 +217,7 @@
     gap: 8px;
   }
 
-  .demo-pill {
+  .sync-pill {
     font-size: 9px;
     padding: 6px 8px;
   }
@@ -202,9 +227,10 @@
   }
 
   .page-heading {
+    flex-direction: column;
     align-items: flex-start;
     margin-bottom: 20px;
-    gap: 10px;
+    gap: 12px;
   }
 
   .page-heading h1 {
@@ -220,6 +246,16 @@
   .page-heading > .btn-primary {
     font-size: 10px;
     padding: 10px;
+  }
+
+  .heading-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .month-switch b {
+    font-size: 11px;
+    min-width: 70px;
   }
 
   .stats-grid {
@@ -371,12 +407,71 @@
     gap: 14px;
   }
 
-  .lottery-result-row {
-    gap: 8px;
+  /* 通知鈴鐺面板：寬度為螢幕寬減 24px，不可超出畫面 */
+  .bell-panel {
+    width: calc(100vw - 24px);
+    right: -8px;
   }
 
-  .result-actions {
-    min-width: 54px;
+  .win-banner {
+    margin: 10px 16px 0;
+    font-size: 11px;
+    padding: 10px 12px;
+  }
+
+  .next-draw-card {
+    flex-wrap: wrap;
+    padding: 14px 15px;
+    gap: 10px;
+  }
+
+  .next-draw-side {
+    border-left: 0;
+    padding-left: 0;
+    justify-items: start;
+  }
+
+  .period-tab {
+    padding: 7px 11px;
+    font-size: 10px;
+  }
+
+  .draw-number {
+    font-size: 17px;
+    letter-spacing: 1.5px;
+  }
+
+  .draw-number-sm {
+    font-size: 14px;
+    letter-spacing: 1.2px;
+  }
+
+  .draw-number-row {
+    flex-wrap: wrap;
+    padding: 11px;
+  }
+
+  .draw-first-list {
+    justify-items: start;
+    width: 100%;
+  }
+
+  .rules-table {
+    font-size: 10px;
+  }
+
+  .rules-table th,
+  .rules-table td {
+    padding: 7px 8px;
+  }
+
+  .win-number {
+    font-size: 17px;
+  }
+
+  .plain-invoice-row {
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .settings-panel {

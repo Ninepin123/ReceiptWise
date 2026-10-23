@@ -1,0 +1,67 @@
+/* 同步狀態膠囊：已同步（綠）／同步中（紫閃爍）／離線待同步（橘）／同步錯誤（紅） */
+.sync-pill {
+  font-size: 11px;
+  color: #777990;
+  background: #f6f5fb;
+  border: 1px solid #efedf7;
+  padding: 7px 11px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: .18s;
+}
+
+.sync-pill:hover {
+  background: #f0efff;
+  color: var(--purple);
+}
+
+.sync-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sync-pill.idle .sync-dot {
+  background: #35ad88;
+}
+
+.sync-pill.offline {
+  color: #b98a4e;
+  background: #fff7ea;
+  border-color: #f7e8d2;
+}
+
+.sync-pill.offline .sync-dot {
+  background: #f0ad56;
+}
+
+.sync-pill.error {
+  color: #c0564e;
+  background: #fdf0ef;
+  border-color: #f5d9d7;
+}
+
+.sync-pill.error .sync-dot {
+  background: #e2574c;
+}
+
+.sync-pill.syncing {
+  color: #6f63d8;
+  background: #f1efff;
+  border-color: #e4e0fb;
+}
+
+.sync-pill.syncing .sync-dot {
+  background: #6558e8;
+  animation: sync-blink 1s infinite;
+}
+
+@keyframes sync-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .25; }
+}

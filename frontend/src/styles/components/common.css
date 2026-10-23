@@ -33,6 +33,55 @@
   font-size: 12px;
 }
 
+/* 頁首右側動作區（月份切換＋主要按鈕） */
+.heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* 月份切換器：‹ 2026年10月 › */
+.month-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid #e7e6f0;
+  border-radius: 9px;
+  padding: 3px 6px;
+}
+
+.month-switch b {
+  font-size: 12px;
+  min-width: 84px;
+  text-align: center;
+  color: #414258;
+}
+
+.month-switch button {
+  border: 0;
+  background: #f6f5fb;
+  color: #777990;
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: .18s;
+}
+
+.month-switch button:hover:not(:disabled) {
+  background: #f0efff;
+  color: var(--purple);
+}
+
+.month-switch button:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
 .wave {
   color: #e8a96c;
   font-size: 20px;

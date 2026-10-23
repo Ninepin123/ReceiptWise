@@ -1,4 +1,5 @@
-/* 掃描頁面：掃描區、掃描框、提示與表單 */
+/* 掃描頁：模式分頁、相機、拍照上傳、確認表單與最近登錄（手機版 @media 在檔尾） */
+
 .scanner-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(310px, .9fr);
@@ -8,129 +9,333 @@
 
 .scanner-main {
   padding: 28px;
+  min-width: 0;
 }
 
-.scanner-title-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 13px;
-  background: #eeebff;
-  color: #6d5fe5;
-  display: grid;
-  place-items: center;
-  margin-bottom: 18px;
-}
-
-.scanner-main h2 {
-  font-size: 19px;
+.scanner-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
   margin: 0 0 9px;
+  color: #7163e9;
 }
 
 .scanner-intro {
   color: #9697aa;
   font-size: 11px;
   line-height: 1.8;
-  margin: 0;
+  margin: 0 0 6px;
   max-width: 470px;
 }
 
-.scan-placeholder {
-  margin-top: 25px;
+/* 三個模式分頁 */
+.mode-tabs {
+  display: flex;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #e7e6f0;
+  border-radius: 11px;
+  padding: 5px;
+  margin-bottom: 20px;
+}
+
+.mode-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #85869c;
+  cursor: pointer;
+  transition: .18s;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.mode-tab:hover {
+  color: #6558e8;
+  background: #f8f7ff;
+}
+
+.mode-tab.active {
+  background: linear-gradient(120deg, #7165ed, #5b4bdc);
+  color: #fff;
+  box-shadow: 0 4px 10px #6558e833;
+}
+
+/* 相機畫面 */
+.qr-stage {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #12101f;
+  max-width: 520px;
+  margin: 18px auto 0;
+  min-height: 250px;
+  display: grid;
+  place-items: center;
+}
+
+/* html5-qrcode 會把 video 綁在這個 div，寬度跟著容器走 */
+.qr-stage .qr-view {
+  width: 100%;
+  min-height: 250px;
+}
+
+.qr-stage video {
+  display: block;
+}
+
+.qr-idle {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #6d65c8;
+}
+
+/* 掃描框四角裝飾（置中正方形，跟 qrbox 方框呼應） */
+.qr-corners {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.qr-box {
+  position: relative;
+  width: min(72%, 300px);
+  aspect-ratio: 1;
+  max-height: 80%;
+}
+
+.qr-box .corner {
+  width: 34px;
+  height: 34px;
+  border-color: #b3aaff;
+  filter: drop-shadow(0 0 5px #6558e877);
+}
+
+.qr-box .corner.tl { border-radius: 9px 0 0 0; }
+.qr-box .corner.tr { border-radius: 0 9px 0 0; }
+.qr-box .corner.bl { border-radius: 0 0 0 9px; }
+.qr-box .corner.br { border-radius: 0 0 9px 0; }
+
+.qr-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.qr-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px auto 0;
+  max-width: 520px;
+  color: #b3564f;
+  background: #fdf0ef;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.qr-error svg {
+  flex-shrink: 0;
+}
+
+.qr-tip {
+  text-align: center;
+  color: #9999ad;
+  font-size: 10px;
+  line-height: 1.8;
+  margin: 12px auto 0;
+  max-width: 440px;
+}
+
+.spin {
+  animation: qr-spin 1s linear infinite;
+}
+
+@keyframes qr-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 相機不可用（非 HTTPS）：引導改用拍照模式 */
+.camera-unavailable {
+  margin-top: 18px;
   border: 1px dashed #d9d5f5;
   background: #faf9ff;
   border-radius: 12px;
-  min-height: 260px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
+  padding: 28px 20px;
+  display: grid;
+  justify-items: center;
+  gap: 13px;
+  text-align: center;
   color: #7770c6;
 }
 
-.scan-frame {
-  position: relative;
-  width: 110px;
-  height: 110px;
+.camera-unavailable p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.9;
+  color: #8b88b8;
+  max-width: 380px;
+}
+
+/* 拍照・上傳圖片 */
+.photo-drop {
+  margin-top: 20px;
+  border: 1px dashed #d9d5f5;
+  background: #faf9ff;
+  border-radius: 12px;
+  min-height: 240px;
   display: grid;
   place-items: center;
-  color: #b2aafa;
-  margin-bottom: 4px;
+  align-content: center;
+  gap: 12px;
+  color: #7770c6;
+  cursor: pointer;
+  text-align: center;
+  transition: .18s;
 }
 
-.corner {
-  position: absolute;
-  width: 25px;
-  height: 25px;
-  border-color: #796be8;
-  border-style: solid;
+.photo-drop:hover {
+  border-color: #a89ef2;
+  background: #f4f2ff;
 }
 
-.corner.tl {
-  left: 0;
-  top: 0;
-  border-width: 3px 0 0 3px;
-  border-radius: 7px 0 0;
+.photo-drop.busy {
+  opacity: .7;
+  pointer-events: none;
 }
 
-.corner.tr {
-  right: 0;
-  top: 0;
-  border-width: 3px 3px 0 0;
-  border-radius: 0 7px 0 0;
-}
-
-.corner.bl {
-  left: 0;
-  bottom: 0;
-  border-width: 0 0 3px 3px;
-  border-radius: 0 0 0 7px;
-}
-
-.corner.br {
-  right: 0;
-  bottom: 0;
-  border-width: 0 3px 3px 0;
-  border-radius: 0 0 7px;
-}
-
-.scan-placeholder b {
+.photo-drop b {
   font-size: 12px;
 }
 
-.scan-placeholder > span {
+.photo-hint {
   font-size: 10px;
   color: #a3a0cb;
 }
 
-.scan-tips {
+/* 掃描框（拍照上傳的裝飾） */
+.scan-frame {
+  position: relative;
+  width: 104px;
+  height: 104px;
   display: grid;
-  gap: 13px;
-  margin-top: 20px;
+  place-items: center;
+  color: #b2aafa;
 }
 
-.scan-tips div {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  color: #9999ad;
-  font-size: 10px;
-  line-height: 1.7;
+.corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: #796be8;
+  border-style: solid;
 }
 
-.scan-tips svg {
-  flex-shrink: 0;
-  color: #9c92ed;
+.corner.tl { left: 0; top: 0; border-width: 3px 0 0 3px; border-radius: 7px 0 0; }
+.corner.tr { right: 0; top: 0; border-width: 3px 3px 0 0; border-radius: 0 7px 0 0; }
+.corner.bl { left: 0; bottom: 0; border-width: 0 0 3px 3px; border-radius: 0 0 0 7px; }
+.corner.br { right: 0; bottom: 0; border-width: 0 3px 3px 0; border-radius: 0 0 7px 0; }
+
+/* 最近登錄 */
+.recent-block {
+  margin-top: 26px;
+  border-top: 1px solid #f0eef9;
+  padding-top: 18px;
 }
 
-.scanner-form-panel {
-  padding: 24px;
-}
-
-.scanner-form-panel .panel-heading h3 {
+.recent-head {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.recent-head h3 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.recent-more {
+  font-size: 11px;
+  color: #6558e8;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
   gap: 8px;
+}
+
+.recent-list li {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  background: #faf9ff;
+  border: 1px solid #f0eef9;
+  border-radius: 9px;
+  padding: 9px 12px;
+  min-width: 0;
+}
+
+.source-icon {
+  color: #8d83f2;
+  flex-shrink: 0;
+}
+
+.recent-number {
+  font-weight: 700;
+  letter-spacing: .3px;
+  white-space: nowrap;
+}
+
+.recent-seller {
+  color: #9697aa;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-amount {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.recent-empty {
+  color: #aaaabc;
+  font-size: 11px;
+  margin: 0;
+}
+
+/* 右欄：確認／補登表單 */
+.scanner-form-panel {
+  padding: 24px;
+  min-width: 0;
+  scroll-margin-top: 20px;
 }
 
 .form-stack {
@@ -143,15 +348,306 @@
   grid-column: 1/-1;
 }
 
-.centered {
-  display: flex;
+/* 有發票／沒有發票 切換 */
+.kind-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: #f6f5fb;
+  padding: 4px;
+  border-radius: 10px;
 }
 
-.inline-notice {
+.kind-toggle button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  padding: 9px 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #85869c;
+  cursor: pointer;
+  transition: .18s;
+  min-width: 0;
+}
+
+.kind-toggle button.active {
+  background: #fff;
+  color: #6558e8;
+  box-shadow: 0 2px 7px #6558e822;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 14px;
+}
+
+/* 欄位驗證錯誤 */
+.form-field.invalid input {
+  border-color: #dc8f89;
+}
+
+.form-field.invalid input:focus {
+  border-color: #d96862;
+  box-shadow: 0 0 0 3px #d9686212;
+}
+
+.field-error {
   margin: 0;
+  color: #d96862;
+  font-size: 10.5px;
+  line-height: 1.6;
+}
+
+/* 賣方統編（唯讀小字） */
+.seller-id-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  color: #8b88b8;
+  background: #f6f5fb;
+  border-radius: 7px;
+  padding: 7px 10px;
+  margin: -6px 0 0;
+  width: fit-content;
+}
+
+/* 品目清單（可收合） */
+.item-fold {
+  border: 1px solid #eeecf9;
+  border-radius: 10px;
+  background: #fcfcff;
+}
+
+.item-fold summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 13px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #65667c;
+  cursor: pointer;
+}
+
+.item-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.item-fold .chev {
+  margin-left: auto;
+  color: #a3a0cb;
+  transition: .18s;
+}
+
+.item-fold[open] .chev {
+  transform: rotate(180deg);
+}
+
+.item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 13px 11px;
+  display: grid;
+  gap: 7px;
+}
+
+.item-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 11px;
+  color: #63647a;
+  min-width: 0;
+}
+
+.item-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-qty {
+  color: #9697aa;
+  flex-shrink: 0;
+}
+
+.item-price {
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* 同時記一筆支出 */
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #65667c;
+  cursor: pointer;
+}
+
+.check-row input {
+  width: 16px;
+  height: 16px;
+  accent-color: #6558e8;
+  cursor: pointer;
+}
+
+.expense-box {
+  border: 1px solid #eeecf9;
+  border-radius: 10px;
+  padding: 14px;
+  display: grid;
+  gap: 14px;
+  background: #fcfcff;
+}
+
+/* 重複登錄提示 */
+.dup-notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.dup-notice a {
+  font-weight: 700;
+  color: #a06a2c;
+  text-decoration: underline;
+}
+
+/* 存檔成功訊息 */
+.save-success {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #eafaf3;
+  border: 1px solid #c9eede;
+  color: #1f7a5c;
+  border-radius: 11px;
+  padding: 13px 14px;
+  margin-bottom: 18px;
+}
+
+.save-success > svg {
+  flex-shrink: 0;
+}
+
+.save-success-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.save-success b {
+  font-size: 13px;
+}
+
+.save-success p {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: #4d9b80;
+  line-height: 1.6;
+}
+
+.save-success .btn-secondary {
+  flex-shrink: 0;
+  padding: 8px 12px;
+}
+
+/* 提示條（沿用原本樣式，加上語氣色） */
+.inline-notice {
+  margin: 14px 0 0;
   color: #6c61d9;
   background: #f2f0ff;
   border-radius: 7px;
   padding: 10px;
   font-size: 11px;
+  line-height: 1.7;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inline-notice.success { background: #eafaf3; color: #1f7a5c; }
+.inline-notice.info { background: #eef4ff; color: #4a79c9; }
+.inline-notice.warn { background: #fff7e8; color: #a06a2c; }
+.inline-notice.error { background: #fdf0ef; color: #b3564f; }
+
+/* ---- 手機版：單欄（<=600px 時 responsive.css 已把 .scanner-layout 變一欄） ---- */
+@media (max-width: 600px) {
+  .mode-tabs {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .mode-tab {
+    flex: 1 1 0;
+    padding: 9px 4px;
+    font-size: 10.5px;
+    gap: 4px;
+  }
+
+  .scanner-main,
+  .scanner-form-panel {
+    padding: 18px;
+  }
+
+  .qr-stage,
+  .qr-stage .qr-view {
+    min-height: 210px;
+  }
+
+  .qr-box .corner {
+    width: 28px;
+    height: 28px;
+  }
+
+  .photo-drop {
+    min-height: 200px;
+  }
+
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .kind-toggle button {
+    font-size: 10.5px;
+    padding: 8px 4px;
+  }
+
+  .recent-list li {
+    gap: 8px;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .save-success {
+    flex-wrap: wrap;
+  }
+
+  .save-success .btn-secondary {
+    width: 100%;
+  }
+}
+
+/* 更窄的螢幕（320px）：藏圖示避免分頁文字擠爆 */
+@media (max-width: 400px) {
+  .mode-tab svg {
+    display: none;
+  }
+
+  .recent-seller {
+    display: none;
+  }
 }

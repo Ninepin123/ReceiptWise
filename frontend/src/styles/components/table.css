@@ -65,6 +65,14 @@
   color: #37ad88;
 }
 
+/* 由發票建立的交易：項目名稱旁的小圖示 */
+.invoice-link-icon {
+  display: inline-flex;
+  align-items: center;
+  color: #8a80ec;
+  flex-shrink: 0;
+}
+
 .category-chip {
   background: #f5f4fb;
   color: #82839a;

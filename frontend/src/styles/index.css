@@ -2,6 +2,8 @@
 @import './base.css';
 @import './layout.css';
 @import './components/common.css';
+@import './components/sync.css';
+@import './components/notifications.css';
 @import './components/panel-chart.css';
 @import './components/table.css';
 @import './components/records.css';

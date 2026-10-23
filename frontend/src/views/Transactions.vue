@@ -1,13 +1,23 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { Plus, Search, Pencil, Trash2, X, ArrowUpDown } from 'lucide-vue-next'
-import { getTransactions, saveTransactions, money } from '../api'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { Plus, Search, Pencil, Trash2, X, ReceiptText } from 'lucide-vue-next'
+import { useLedgerStore } from '../stores/ledger'
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../constants'
+import { money } from '../utils/format'
+import { monthKey } from '../utils/stats'
+import { todayInTaipei } from '../utils/period'
 
-const rows = ref(getTransactions())
+const route = useRoute()
+const router = useRouter()
+const ledger = useLedgerStore()
+
 const query = ref('')
 const filter = ref('all')
+const monthFilter = ref('all')
 const showForm = ref(false)
 const editingId = ref(null)
+const formError = ref('')
 const form = ref(blank())
 
 function blank() {
@@ -16,71 +26,94 @@ function blank() {
     title: '',
     category: '餐飲',
     amount: '',
-    date: new Date().toISOString().slice(0, 10),
+    date: todayInTaipei(),
     note: ''
   }
 }
 
-const categories = ['餐飲', '交通', '娛樂', '購物', '居家', '醫療', '薪資', '其他收入', '其他']
-
-// 依類型分頁與搜尋關鍵字篩選，日期由新到舊排序
-const filtered = computed(() =>
-  rows.value
-    .filter(
-      t =>
-        (filter.value === 'all' || t.type === filter.value) &&
-        `${t.title} ${t.category} ${t.note || ''}`.toLowerCase().includes(query.value.toLowerCase())
-    )
-    .sort((a, b) => b.date.localeCompare(a.date))
+// 分類選單依類型切換
+const categoryOptions = computed(() =>
+  form.value.type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES
 )
 
+function setType(type) {
+  form.value.type = type
+  if (!categoryOptions.value.includes(form.value.category)) {
+    form.value.category = categoryOptions.value[0]
+  }
+}
+
+// 資料中出現過的月份（新到舊）
+const monthOptions = computed(() =>
+  [...new Set(ledger.transactions.map((t) => monthKey(t.date)))].sort((a, b) => b.localeCompare(a))
+)
+
+// 依類型、月份與關鍵字篩選（ledger 已依日期新到舊排序）
+const filtered = computed(() =>
+  ledger.transactions.filter(
+    (t) =>
+      (filter.value === 'all' || t.type === filter.value) &&
+      (monthFilter.value === 'all' || monthKey(t.date) === monthFilter.value) &&
+      `${t.title} ${t.category} ${t.note || ''}`.toLowerCase().includes(query.value.toLowerCase())
+  )
+)
+
+// 統計卡依目前篩選結果計算
 const totalIncome = computed(() =>
-  rows.value.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
+  filtered.value.filter((t) => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
 )
 const totalExpense = computed(() =>
-  rows.value.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
+  filtered.value.filter((t) => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
 )
-
-function persist() {
-  saveTransactions(rows.value)
-}
 
 function openNew() {
   editingId.value = null
   form.value = blank()
+  formError.value = ''
   showForm.value = true
 }
 
 function edit(t) {
   editingId.value = t.id
-  form.value = { ...t }
+  form.value = { ...blank(), ...t }
+  formError.value = ''
   showForm.value = true
 }
 
 function submit() {
-  if (!form.value.title.trim() || Number(form.value.amount) <= 0 || !form.value.date)
-    return alert('請填寫項目、有效金額與日期')
-
-  const item = {
-    ...form.value,
-    id: editingId.value ?? Date.now(),
-    amount: Number(form.value.amount),
-    title: form.value.title.trim()
+  const amount = Math.round(Number(form.value.amount))
+  if (!form.value.title.trim()) {
+    formError.value = '請填寫項目名稱'
+    return
   }
-
-  if (editingId.value) rows.value = rows.value.map(t => (t.id === editingId.value ? item : t))
-  else rows.value.unshift(item)
-
-  persist()
+  if (!Number.isFinite(amount) || amount <= 0) {
+    formError.value = '金額必須是大於 0 的整數'
+    return
+  }
+  if (!form.value.date) {
+    formError.value = '請選擇日期'
+    return
+  }
+  ledger.saveTransaction({
+    ...form.value,
+    id: editingId.value ?? undefined,
+    title: form.value.title.trim(),
+    amount
+  })
   showForm.value = false
 }
 
 function remove(id) {
-  if (confirm('確定要刪除此筆紀錄嗎？')) {
-    rows.value = rows.value.filter(t => t.id !== id)
-    persist()
-  }
+  if (confirm('確定要刪除此筆紀錄嗎？')) ledger.deleteTransaction(id)
 }
+
+// 網址帶 ?new=1 時自動打開新增視窗，並把 query 清掉
+onMounted(() => {
+  if (route.query.new) {
+    openNew()
+    router.replace({ query: { ...route.query, new: undefined } })
+  }
+})
 </script>
 
 <template>
@@ -100,7 +133,7 @@ function remove(id) {
         <span class="stat-icon mint">↗</span>
       </div>
       <div class="stat-value positive">{{ money(totalIncome) }}</div>
-      <div class="stat-hint">所有已記錄收入</div>
+      <div class="stat-hint">目前篩選條件下的收入</div>
     </div>
     <div class="stat-card">
       <div class="stat-top">
@@ -108,15 +141,15 @@ function remove(id) {
         <span class="stat-icon peach">↘</span>
       </div>
       <div class="stat-value negative">{{ money(totalExpense) }}</div>
-      <div class="stat-hint">所有已記錄支出</div>
+      <div class="stat-hint">目前篩選條件下的支出</div>
     </div>
     <div class="stat-card">
       <div class="stat-top">
         <span class="stat-label">紀錄筆數</span>
         <span class="stat-icon purple">▤</span>
       </div>
-      <div class="stat-value">{{ rows.length }} <small>筆</small></div>
-      <div class="stat-hint">本機瀏覽器資料</div>
+      <div class="stat-value">{{ filtered.length }} <small>筆</small></div>
+      <div class="stat-hint">雲端同步的紀錄</div>
     </div>
   </div>
 
@@ -134,6 +167,10 @@ function remove(id) {
         <Search :size="17" />
         <input v-model="query" placeholder="搜尋項目或分類..." />
       </div>
+      <select v-model="monthFilter" class="month-filter">
+        <option value="all">全部月份</option>
+        <option v-for="m in monthOptions" :key="m" :value="m">{{ m }}</option>
+      </select>
     </div>
     <div class="table-scroll">
       <table class="data-table">
@@ -154,7 +191,11 @@ function remove(id) {
                 <span
                   class="transaction-badge"
                   :class="t.type"
-                >{{ t.type === 'income' ? '↗' : '↘' }}</span>{{ t.title }}</span>
+                >{{ t.type === 'income' ? '↗' : '↘' }}</span>{{ t.title }}
+                <span v-if="t.invoiceId" class="invoice-link-icon" title="由發票建立">
+                  <ReceiptText :size="13" />
+                </span>
+              </span>
             </td>
             <td>
               <span class="category-chip">{{ t.category }}</span>
@@ -184,7 +225,7 @@ function remove(id) {
         </tbody>
       </table>
     </div>
-    <div class="table-foot">顯示 {{ filtered.length }} 筆紀錄 <span>資料暫存於此瀏覽器</span></div>
+    <div class="table-foot">顯示 {{ filtered.length }} 筆紀錄 <span>資料已同步到雲端</span></div>
   </section>
 
   <div v-if="showForm" class="modal-backdrop" @click.self="showForm = false">
@@ -203,12 +244,12 @@ function remove(id) {
             <button
               type="button"
               :class="{ active: form.type === 'expense' }"
-              @click="form.type = 'expense'"
+              @click="setType('expense')"
             >支出</button>
             <button
               type="button"
               :class="{ active: form.type === 'income' }"
-              @click="form.type = 'income'"
+              @click="setType('income')"
             >收入</button>
           </div>
         </div>
@@ -223,7 +264,7 @@ function remove(id) {
         <div class="form-field">
           <label>分類</label>
           <select v-model="form.category">
-            <option v-for="c in categories" :key="c">{{ c }}</option>
+            <option v-for="c in categoryOptions" :key="c">{{ c }}</option>
           </select>
         </div>
         <div class="form-field">
@@ -234,6 +275,7 @@ function remove(id) {
           <label>備註</label>
           <input v-model="form.note" placeholder="選填" />
         </div>
+        <p v-if="formError" class="error-text full">{{ formError }}</p>
         <div class="modal-actions full">
           <button type="button" class="btn-secondary" @click="showForm = false">取消</button>
           <button type="submit" class="btn-primary">儲存紀錄</button>

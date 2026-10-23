@@ -26,3 +26,11 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Python / backend
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+backend/instance/
+*.db
