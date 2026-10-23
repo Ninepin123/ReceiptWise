@@ -1,0 +1,441 @@
+/* 響應式調整：1200px / 900px / 600px 三個斷點 */
+@media (max-width: 1200px) {
+  .sidebar {
+    width: 220px;
+  }
+
+  .main-area {
+    margin-left: 220px;
+  }
+
+  .page-content {
+    padding: 28px 25px;
+  }
+
+  .topbar {
+    padding: 0 25px;
+  }
+
+  .stats-grid {
+    gap: 11px;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  .stat-value {
+    font-size: 22px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1.35fr) minmax(260px, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 72px;
+    padding: 22px 10px 14px;
+  }
+
+  .brand {
+    padding: 0 7px 30px;
+  }
+
+  .brand > span:last-child,
+  .workspace-label,
+  .nav-item span,
+  .profile-copy,
+  .sidebar-bottom .icon-button {
+    display: none;
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding: 13px 0;
+  }
+
+  .sidebar-bottom {
+    justify-content: center;
+  }
+
+  .main-area {
+    margin-left: 72px;
+  }
+
+  .page-content {
+    padding: 24px 20px;
+  }
+
+  .topbar {
+    padding: 0 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .category-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 20px;
+  }
+
+  .category-panel .panel-heading {
+    grid-column: 1/-1;
+  }
+
+  .doughnut-wrap {
+    grid-row: 2;
+    margin: 0 auto;
+  }
+
+  .legend-list {
+    align-content: center;
+  }
+
+  .scanner-layout,
+  .lottery-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .login-promo {
+    padding: 32px 7%;
+  }
+
+  .login-form-side {
+    padding: 30px 6%;
+  }
+
+  .promo-copy h1 {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    width: 100%;
+    height: 62px;
+    inset: auto 0 0;
+    flex-direction: row;
+    padding: 6px 8px;
+    border-top: 1px solid #eeedf5;
+    border-right: 0;
+    justify-content: space-around;
+    box-shadow: 0 -4px 15px #2d245208;
+  }
+
+  .sidebar .brand,
+  .workspace-label,
+  .sidebar-bottom {
+    display: none;
+  }
+
+  .nav-list {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    gap: 0;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 2px;
+    min-width: 0;
+    flex: 1;
+    border-radius: 7px;
+  }
+
+  .nav-item svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .nav-item span {
+    display: block;
+    font-size: 9px;
+    white-space: nowrap;
+  }
+
+  .main-area {
+    margin-left: 0;
+    padding-bottom: 62px;
+  }
+
+  .topbar {
+    height: 58px;
+    padding: 0 16px;
+  }
+
+  .breadcrumb {
+    display: none;
+  }
+
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #6558e8;
+    font-weight: 800;
+  }
+
+  .topbar-right {
+    gap: 8px;
+  }
+
+  .demo-pill {
+    font-size: 9px;
+    padding: 6px 8px;
+  }
+
+  .page-content {
+    padding: 23px 14px;
+  }
+
+  .page-heading {
+    align-items: flex-start;
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+
+  .page-heading h1 {
+    font-size: 22px;
+  }
+
+  .page-heading p {
+    font-size: 11px;
+    line-height: 1.7;
+    max-width: 300px;
+  }
+
+  .page-heading > .btn-primary {
+    font-size: 10px;
+    padding: 10px;
+  }
+
+  .stats-grid {
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 14px;
+    border-radius: 11px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .stat-icon {
+    width: 27px;
+    height: 27px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+    margin: 12px 0 5px;
+  }
+
+  .stat-hint {
+    font-size: 9px;
+  }
+
+  .notice-strip {
+    align-items: flex-start;
+    font-size: 10px;
+    line-height: 1.7;
+  }
+
+  .notice-strip a {
+    font-size: 9px;
+  }
+
+  .panel {
+    padding: 16px;
+    border-radius: 11px;
+  }
+
+  .panel-heading {
+    margin-bottom: 16px;
+  }
+
+  .chart-area {
+    height: 215px;
+  }
+
+  .category-panel {
+    display: block;
+  }
+
+  .doughnut-wrap {
+    margin: 0 auto 14px;
+  }
+
+  .legend-list {
+    padding: 0 8px;
+  }
+
+  .records-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  .search-box {
+    width: 100%;
+    max-width: none;
+  }
+
+  .search-box input {
+    width: 100%;
+  }
+
+  .filter-tabs {
+    width: 100%;
+  }
+
+  .filter-tabs button {
+    flex: 1;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 11px 10px;
+  }
+
+  .table-foot {
+    padding: 12px 14px;
+    flex-wrap: wrap;
+  }
+
+  .compact-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .compact-stats .stat-card:last-child {
+    grid-column: 1/-1;
+  }
+
+  .invoice-summary-grid {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .invoice-summary {
+    padding: 13px;
+  }
+
+  .invoice-summary b {
+    font-size: 19px;
+  }
+
+  .scanner-main {
+    padding: 18px;
+  }
+
+  .scan-placeholder {
+    min-height: 220px;
+  }
+
+  .scanner-form-panel {
+    padding: 18px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-field.full,
+  .full {
+    grid-column: auto;
+  }
+
+  .modal-actions.full {
+    grid-column: auto;
+  }
+
+  .modal-card {
+    padding: 20px;
+  }
+
+  .lottery-layout {
+    gap: 14px;
+  }
+
+  .lottery-result-row {
+    gap: 8px;
+  }
+
+  .result-actions {
+    min-width: 54px;
+  }
+
+  .settings-panel {
+    padding: 16px;
+  }
+
+  .setting-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .setting-copy {
+    min-width: calc(100% - 60px);
+  }
+
+  .setting-row > strong,
+  .setting-row > .status-chip,
+  .setting-row > .btn-secondary {
+    margin-left: 53px;
+  }
+
+  .login-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .login-promo {
+    display: none;
+  }
+
+  .login-form-side {
+    min-height: 100vh;
+    padding: 35px 24px;
+  }
+
+  .mobile-login-mark {
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 20px;
+    background: #eeebff;
+    border-radius: 15px;
+    color: #6558e8;
+  }
+
+  .form-heading h2 {
+    font-size: 24px;
+  }
+
+  .login-copyright {
+    margin-top: 35px;
+  }
+
+  .feature-tag {
+    font-size: 9px;
+    padding: 8px;
+  }
+
+  .footer-note {
+    font-size: 9px;
+  }
+}

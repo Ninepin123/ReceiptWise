@@ -1,0 +1,194 @@
+/* 共用元件：頁首標題、按鈕、提示條、統計卡片 */
+.page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  color: #b2b1c4;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.eyebrow.purple {
+  color: #8a80ec;
+}
+
+.page-heading h1 {
+  font-size: 25px;
+  line-height: 1.4;
+  letter-spacing: -.7px;
+  margin: 0 0 7px;
+  font-weight: 700;
+}
+
+.page-heading p {
+  color: #9697aa;
+  margin: 0;
+  font-size: 12px;
+}
+
+.wave {
+  color: #e8a96c;
+  font-size: 20px;
+}
+
+.btn-primary,
+.btn-secondary {
+  border: 0;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: .18s;
+}
+
+.btn-primary {
+  color: #fff;
+  background: linear-gradient(120deg, #7165ed, #5b4bdc);
+  box-shadow: 0 5px 12px #6558e825;
+}
+
+.btn-primary:hover {
+  background: var(--purple-dark);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #fff;
+  border: 1px solid #e7e6f0;
+  color: #6d6e84;
+}
+
+.btn-secondary:hover {
+  background: #f8f7ff;
+  color: var(--purple);
+}
+
+.notice-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f0efff;
+  border: 1px solid #e6e3ff;
+  color: #7770c5;
+  border-radius: 9px;
+  padding: 11px 14px;
+  font-size: 11px;
+  margin-bottom: 21px;
+}
+
+.notice-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.notice-strip > span:nth-child(2) {
+  flex: 1;
+}
+
+.notice-strip a {
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.stat-card {
+  border: 1px solid #efeff6;
+  background: #fff;
+  border-radius: 13px;
+  padding: 19px 20px;
+  min-width: 0;
+  box-shadow: 0 3px 12px #29215a03;
+}
+
+.stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #898ba1;
+  font-weight: 500;
+}
+
+.stat-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.stat-icon.mint {
+  background: #e5f8f1;
+  color: #35ad88;
+}
+
+.stat-icon.peach {
+  background: #fff0e6;
+  color: #e99459;
+}
+
+.stat-icon.purple {
+  background: #eeebff;
+  color: #7163e9;
+}
+
+.stat-icon.blue {
+  background: #e8f3ff;
+  color: #5297e8;
+}
+
+.stat-value {
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -.7px;
+  margin: 13px 0 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-value small {
+  font-size: 13px;
+  color: #9b9caf;
+}
+
+.stat-hint {
+  font-size: 10px;
+  color: #aaaabc;
+}
+
+.positive {
+  color: #2da984;
+}
+
+.negative {
+  color: #e58b5a;
+}

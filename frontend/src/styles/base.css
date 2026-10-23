@@ -1,0 +1,41 @@
+/* 基礎樣式：:root 全域變數與元素預設 */
+:root {
+  font-family: 'DM Sans', 'Noto Sans TC', sans-serif;
+  color: #25263a;
+  background: #f7f8fc;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-weight: 400;
+  font-size: 14px;
+  --purple: #6558e8;
+  --purple-dark: #5043d0;
+  --ink: #25263a;
+  --muted: #898ba2;
+  --line: #ececf4;
+  --panel: #fff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

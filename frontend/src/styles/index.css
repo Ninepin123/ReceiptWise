@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap');
+@import './base.css';
+@import './layout.css';
+@import './components/common.css';
+@import './components/panel-chart.css';
+@import './components/table.css';
+@import './components/records.css';
+@import './components/modal-form.css';
+@import './pages/invoices.css';
+@import './pages/scanner.css';
+@import './pages/lottery.css';
+@import './pages/settings.css';
+@import './pages/login.css';
+@import './responsive.css';

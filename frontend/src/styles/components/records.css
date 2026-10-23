@@ -1,0 +1,102 @@
+/* 記帳紀錄：緊湊統計、篩選列、搜尋框、表格操作 */
+.compact-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.records-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.records-toolbar {
+  padding: 19px 21px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  border-bottom: 1px solid #f0eff6;
+}
+
+.filter-tabs {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.filter-tabs button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 9px 12px;
+  color: #9293a7;
+  font-size: 11px;
+}
+
+.filter-tabs button.selected {
+  color: #6558e8;
+  background: #f0efff;
+  font-weight: 700;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #ecebf4;
+  border-radius: 8px;
+  padding: 0 10px;
+  color: #a3a4b6;
+  max-width: 250px;
+}
+
+.search-box input {
+  border: 0;
+  outline: 0;
+  padding: 10px 0;
+  min-width: 0;
+  width: 190px;
+  font-size: 11px;
+  background: transparent;
+}
+
+.muted-cell {
+  color: #b0b0c0!important;
+}
+
+.table-action {
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #9394a8;
+  padding: 7px;
+  border-radius: 6px;
+}
+
+.table-action:hover {
+  background: #efedff;
+  color: #6558e8;
+}
+
+.table-action.danger:hover {
+  background: #fff0ed;
+  color: #e46f64;
+}
+
+.table-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 21px;
+  color: #a2a3b5;
+  font-size: 10px;
+  border-top: 1px solid #f1f0f7;
+}
+
+.table-foot a {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #7669e2;
+  font-weight: 600;
+}

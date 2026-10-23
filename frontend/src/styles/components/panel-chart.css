@@ -1,0 +1,124 @@
+/* 面板與圖表：panel 外框、圓餅圖、圖例 */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr);
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #eeedf5;
+  border-radius: 13px;
+  padding: 21px;
+  min-width: 0;
+  box-shadow: 0 3px 12px #29215a03;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.panel-heading h3,
+.records-toolbar h3 {
+  font-size: 14px;
+  margin: 0 0 5px;
+  font-weight: 700;
+}
+
+.panel-heading p,
+.subheading {
+  font-size: 10px;
+  color: #a0a1b3;
+  margin: 0;
+}
+
+.select-static {
+  border: 1px solid #eeedf5;
+  border-radius: 7px;
+  padding: 8px 10px;
+  color: #85869c;
+  font-size: 10px;
+}
+
+.chart-area {
+  height: 235px;
+}
+
+.doughnut-wrap {
+  height: 170px;
+  width: 100%;
+  max-width: 210px;
+  position: relative;
+  margin: 0 auto 14px;
+}
+
+.doughnut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.doughnut-center small {
+  font-size: 10px;
+  color: #9c9caf;
+  margin-bottom: 6px;
+}
+
+.doughnut-center b {
+  font-size: 18px;
+}
+
+.legend-list {
+  display: grid;
+  gap: 12px;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #777990;
+}
+
+.legend-row b {
+  margin-left: auto;
+  color: #44455b;
+  font-size: 11px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+}
+
+.empty-mini {
+  font-size: 11px;
+  color: #aaa;
+  text-align: center;
+  padding: 12px;
+}
+
+.text-link {
+  color: #7165df;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.recent-panel {
+  padding-bottom: 7px;
+}

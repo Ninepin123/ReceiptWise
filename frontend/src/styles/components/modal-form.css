@@ -1,0 +1,111 @@
+/* 彈窗與表單：modal、表單欄位、類型切換 */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #25213b80;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.modal-card {
+  background: #fff;
+  border-radius: 16px;
+  width: min(560px, 100%);
+  padding: 24px;
+  box-shadow: 0 20px 70px #1b163c30;
+  margin: auto;
+}
+
+.modal-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 23px;
+}
+
+.modal-heading h2 {
+  margin: 0 0 6px;
+  font-size: 19px;
+}
+
+.modal-heading p {
+  margin: 0;
+  color: #9697aa;
+  font-size: 11px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 17px;
+}
+
+.form-field {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.form-field.full,
+.full {
+  grid-column: 1/-1;
+}
+
+.form-field label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #65667c;
+}
+
+.form-field input,
+.form-field select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #e8e7f1;
+  border-radius: 8px;
+  padding: 11px 12px;
+  color: #414258;
+  background: #fff;
+  outline: 0;
+  font-size: 12px;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  border-color: #8d83ef;
+  box-shadow: 0 0 0 3px #6558e812;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 5px;
+}
+
+.type-switch {
+  display: flex;
+  background: #f5f4fa;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.type-switch button {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  padding: 9px;
+  border-radius: 6px;
+  color: #8c8da1;
+  font-size: 11px;
+}
+
+.type-switch button.active {
+  background: #fff;
+  color: #6558e8;
+  font-weight: 700;
+  box-shadow: 0 1px 4px #29215a10;
+}
