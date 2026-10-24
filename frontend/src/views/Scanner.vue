@@ -1,7 +1,8 @@
 <script setup>
 // 掃描／補登頁：相機掃描、拍照・上傳圖片解析、手動補登；
-// 解碼結果統一進 handleDecoded 流程，填入右欄確認表單。
-import { computed, nextTick, ref } from 'vue'
+// 解碼結果統一交給 scanSession 狀態機決定怎麼用，再填入右欄確認表單。
+// QR 讀不到時（摺痕讓 QR 變形等）自動改用後端 OCR 讀文字。
+import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import {
   ArrowRight,
@@ -13,16 +14,20 @@ import {
   PencilLine,
   QrCode,
   RotateCcw,
-  ScanLine
+  ScanLine,
+  ScanText
 } from 'lucide-vue-next'
 import QrScanner from '../components/QrScanner.vue'
 import InvoiceCaptureForm from '../components/InvoiceCaptureForm.vue'
 import { useLedgerStore } from '../stores/ledger'
-import { mergeItems, parseEInvoiceCode } from '../utils/einvoice'
+import { ApiError, NetworkError } from '../api/client'
+import { mergeItems } from '../utils/einvoice'
 import { classifyScanTexts, scanImageFile } from '../utils/imageScan'
+import { buildOcrForm, recognizeInvoiceText } from '../utils/invoiceOcr'
+import { createScanSession, handleScanTexts, scanTick } from '../utils/scanSession'
 import { drawDate, periodOf, periodRange, todayInTaipei } from '../utils/period'
 import { EXPENSE_CATEGORIES } from '../constants'
-import { formatInvoiceNumber, isValidInvoiceNumber, money, normalizeInvoiceNumber } from '../utils/format'
+import { formatInvoiceNumber, money, normalizeInvoiceNumber } from '../utils/format'
 
 const ledger = useLedgerStore()
 
@@ -33,11 +38,11 @@ const tabs = [
   { key: 'manual', label: '手動補登', icon: Keyboard }
 ]
 
-// 掃描回饋訊息 { kind: success/info/warn/error, text }；transient 模式一下下就自動消失
+// 掃描回饋訊息 { kind: success/info/warn/error, text, action? }；transient 模式一下下就自動消失
 const notice = ref(null)
 let noticeTimer = null
-function setNotice(kind, text, { transient = false } = {}) {
-  notice.value = { kind, text }
+function setNotice(kind, text, { transient = false, action = null } = {}) {
+  notice.value = { kind, text, action }
   clearTimeout(noticeTimer)
   if (transient) noticeTimer = setTimeout(() => (notice.value = null), 2500)
 }
@@ -72,19 +77,31 @@ function blankForm() {
 }
 
 const form = ref(blankForm())
-const pendingRightItems = ref([]) // 先掃到右側 QR 時暫存的品目
 const savedInfo = ref(null) // 存檔成功訊息 { text, sub }
-const scanningImage = ref(false)
+const scanningImage = ref(false) // 拍照的條碼解析中
+const ocrRunning = ref(false) // 後端文字辨識中（拍照或相機截圖）
+const cameraRunning = ref(false) // 相機是否運作中（顯示「拍下來辨識文字」按鈕用）
+
+// 掃描階段狀態機：右側 QR 暫存／合併、一維條碼寬限期都由它決定
+let scanState = createScanSession()
+let graceTimer = null // 一維條碼寬限期計時器（離開相機模式或卸載時要清）
 
 const qrScanner = ref(null) // QrScanner 實例（start/stop）
 const captureForm = ref(null) // InvoiceCaptureForm 實例（focusAmount）
 const formPanel = ref(null) // 右欄 panel（手機版捲動用）
+
+function clearGraceTimer() {
+  clearTimeout(graceTimer)
+  graceTimer = null
+}
 
 function switchMode(key) {
   if (mode.value === key) return
   mode.value = key
   notice.value = null
   savedInfo.value = null
+  scanState = createScanSession()
+  clearGraceTimer()
   qrScanner.value?.stop() // 離開相機模式時停相機（v-if 卸載時也會停）
 }
 
@@ -103,11 +120,9 @@ async function scrollFormIntoView() {
   formPanel.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
-// 左側 QR：號碼、日期、金額、隨機碼、統編、品目一次補齊
-function applyLeftQr(parsed) {
-  const merged =
-    pendingRightItems.value.length > 0 ? mergeItems(parsed, { items: pendingRightItems.value }) : parsed
-  pendingRightItems.value = []
+// 左側 QR：號碼、日期、金額、隨機碼、統編、品目一次補齊；rightItems = 要一併合併的右側品目
+function applyLeftQr(parsed, rightItems = []) {
+  const merged = rightItems.length > 0 ? mergeItems(parsed, { items: rightItems }) : parsed
   form.value = {
     ...form.value,
     kind: 'invoice',
@@ -125,17 +140,11 @@ function applyLeftQr(parsed) {
   scrollFormIntoView()
 }
 
-// 右側 QR：只有品目。已有左側資料就合併，否則暫存並提示改掃左側
-function applyRightQr(parsed, fromCamera) {
+// 右側 QR 品目合併進已有左側資料的表單（scanSession 保證同一個只會送一次）
+function mergeRightItems(parsed) {
   const items = parsed.items || []
-  if (isValidInvoiceNumber(normalizeInvoiceNumber(form.value.number))) {
-    form.value = { ...form.value, items: [...(form.value.items || []), ...items] }
-    setNotice('info', `已合併右側 QR Code 的 ${items.length} 項品目`)
-    return
-  }
-  pendingRightItems.value = [...pendingRightItems.value, ...items]
-  // 相機繼續掃，不停下來
-  setNotice('info', '這是右側 QR Code，請對準左側的 QR Code', { transient: fromCamera })
+  if (items.length) form.value = { ...form.value, items: [...(form.value.items || []), ...items] }
+  setNotice('info', `已合併右側 QR Code 的 ${items.length} 項品目`)
 }
 
 // 一維條碼：只有號碼與隨機碼；日期猜該期內最合理的一天，金額留空待補
@@ -160,28 +169,64 @@ function applyBarcode(parsed) {
   nextTick(() => captureForm.value?.focusAmount())
 }
 
-// 相機解碼回來的單一文字
-function onDecoded(text) {
-  const parsed = parseEInvoiceCode(text)
-  switch (parsed.kind) {
-    case 'left-qr':
-      qrScanner.value?.stop()
-      applyLeftQr(parsed)
-      break
-    case 'right-qr':
-      applyRightQr(parsed, true)
-      break
-    case 'barcode':
-      qrScanner.value?.stop()
-      applyBarcode(parsed)
-      break
-    default:
-      // 相機一直解到無法辨識的條碼時只短暫提示，不洗版
-      setNotice('warn', '無法辨識的條碼，請對準發票上的條碼', { transient: true })
+// 執行 scanSession 排出來的動作（一維條碼要不要等寬限期已由 handleScanTexts 決定）
+function runScanActions(actions) {
+  for (const action of actions || []) {
+    switch (action.action) {
+      case 'apply-left':
+        clearGraceTimer()
+        applyLeftQr(action.parsed, action.rightItems)
+        qrScanner.value?.stop()
+        break
+      case 'merge-right':
+        mergeRightItems(action.parsed)
+        break
+      case 'store-right':
+        if (mode.value === 'photo') {
+          // 拍照只有一張圖，訊息不能一下下就消失
+          setNotice('warn', '只讀到右側 QR Code（沒有金額）。請把左側 QR Code 拍清楚再試一次，或改用手動補登。', {
+            action: 'manual'
+          })
+        } else {
+          // 相機繼續掃，不停下來
+          setNotice('info', '這是右側 QR Code，請對準發票左側的 QR Code', { transient: true })
+        }
+        break
+      case 'barcode-grace':
+        setNotice('info', '讀到一維條碼，正在找左側 QR Code（含金額）…')
+        armGraceTimer(action.deadline)
+        break
+      case 'apply-barcode':
+        applyBarcode(action.parsed)
+        qrScanner.value?.stop()
+        break
+      default:
+        // 相機一直解到無法辨識的條碼時只短暫提示，不洗版
+        setNotice('warn', '無法辨識的條碼，請對準發票上的條碼', { transient: true })
+    }
   }
 }
 
-// 拍照・上傳：解出圖片中所有條碼，左 QR 優先，其次條碼、右 QR
+// 相機解碼回來的一張畫面（文字陣列）
+function onDecoded(texts) {
+  const actions = handleScanTexts(scanState, texts, Date.now(), { hasLeftData: form.value.source === 'qr' })
+  runScanActions(actions)
+}
+
+// 一維條碼寬限期到點：還沒等到左側 QR 就用條碼結果
+function armGraceTimer(deadline) {
+  clearTimeout(graceTimer)
+  const delay = Math.max(0, deadline - Date.now())
+  graceTimer = setTimeout(onGraceTick, delay)
+}
+
+function onGraceTick() {
+  graceTimer = null
+  const action = scanTick(scanState, Date.now())
+  if (action) runScanActions([action])
+}
+
+// 拍照・上傳：先解條碼；有左 QR 走原流程，否則自動改用後端 OCR 讀文字
 async function onImageChange(e) {
   const file = e.target.files?.[0]
   e.target.value = '' // 允許重選同一張
@@ -189,34 +234,99 @@ async function onImageChange(e) {
   scanningImage.value = true
   notice.value = null
   savedInfo.value = null
+  let found = { leftQr: null, barcode: null, rightQr: null }
   try {
     const texts = await scanImageFile(file)
-    const found = classifyScanTexts(texts)
+    found = classifyScanTexts(texts)
     if (found.leftQr) {
-      // 同一張圖同時解出右側 QR 時直接合併
-      if (found.rightQr?.items?.length) pendingRightItems.value = found.rightQr.items
-      applyLeftQr(found.leftQr)
+      const actions = handleScanTexts(scanState, texts, Date.now(), { hasLeftData: form.value.source === 'qr' })
+      runScanActions(actions)
       return
     }
-    if (found.barcode) {
-      applyBarcode(found.barcode)
-      return
-    }
-    if (found.rightQr) {
-      applyRightQr(found.rightQr, false)
-      return
-    }
-    setNotice('error', '圖片中找不到發票條碼，請拍清楚一點，或改用手動補登。')
   } catch {
-    setNotice('error', '圖片解析失敗，請重試或改用手動補登。')
+    // 條碼解析失敗也繼續試 OCR（圖讀不出來才會在 OCR 那邊報錯）
   } finally {
     scanningImage.value = false
   }
+  // 沒有左側 QR（只有一維條碼／右側 QR／什麼都沒有）：先 OCR，失敗才退回條碼
+  await runOcrFlow(file, { barcode: found.barcode, rightQr: found.rightQr })
+}
+
+// 共用的 OCR 流程（拍照與相機截圖都用這個）
+async function runOcrFlow(image, { barcode = null, rightQr = null } = {}) {
+  ocrRunning.value = true
+  setNotice('info', '條碼讀不到，改用文字辨識中…')
+  try {
+    const ocr = await recognizeInvoiceText(image)
+    const built = buildOcrForm({ ocr, barcode, rightQr, today: todayInTaipei() })
+    if (!built.ok) {
+      setNotice('error', '找不到可讀的發票條碼。電子發票請先把發票攤平（摺痕會讓 QR Code 變形），正對發票拍近一點、對焦清楚；傳統發票沒有條碼，請改用手動補登。', {
+        action: 'manual'
+      })
+      return
+    }
+    applyOcrForm(built)
+  } catch (err) {
+    // OCR 失敗但同一張圖有一維條碼：至少有號碼和隨機碼，退回條碼
+    if (barcode) {
+      applyBarcode(barcode)
+      return
+    }
+    if (err instanceof NetworkError) {
+      setNotice('error', '目前連不到伺服器，無法文字辨識，請改用手動補登', { action: 'manual' })
+    } else if (err instanceof ApiError && err.status === 503) {
+      setNotice('error', '伺服器沒有開啟文字辨識，請改用手動補登', { action: 'manual' })
+    } else {
+      setNotice('error', '文字辨識失敗，請重試或改用手動補登。', { action: 'manual' })
+    }
+  } finally {
+    ocrRunning.value = false
+  }
+}
+
+// 用 OCR 合併結果填表單，提示缺少／推測的欄位並聚焦第一個缺的
+function applyOcrForm({ fields, missing, guessed }) {
+  form.value = { ...form.value, kind: 'invoice', ...fields }
+  vibrate()
+  const parts = [
+    fields.number
+      ? `已用文字辨識讀取發票 ${formatInvoiceNumber(normalizeInvoiceNumber(fields.number))}，請核對內容`
+      : '已用文字辨識讀取發票，請核對內容'
+  ]
+  if (missing.length) parts.push(`沒讀到：${missing.join('、')}，請手動補上`)
+  if (guessed.length) parts.push(`${guessed.join('、')}是推測的，請確認`)
+  setNotice('warn', parts.join('；'))
+  scrollFormIntoView()
+  nextTick(() => {
+    if (missing.includes('號碼')) captureForm.value?.focusNumber()
+    else if (missing.includes('金額')) captureForm.value?.focusAmount()
+  })
+}
+
+// 相機模式「讀不到？拍下來辨識文字」：截圖 → 停相機 → OCR
+// （寬限期中的一維條碼與暫存的右側 QR 品目一起合併進去）
+async function captureAndOcr() {
+  if (!qrScanner.value || ocrRunning.value || scanningImage.value) return
+  const frame = await qrScanner.value.captureFrame()
+  await qrScanner.value.stop()
+  cameraRunning.value = false
+  clearGraceTimer()
+  const barcode = scanState.pendingBarcode
+  const rightQr = scanState.pendingRightQr
+  // 已帶進 OCR 的暫存清掉，避免殘留到下一張發票被錯誤合併
+  scanState.pendingBarcode = null
+  scanState.pendingRightQr = null
+  if (!frame) {
+    setNotice('warn', '相機還沒準備好，請等畫面出現再試一次', { transient: true })
+    return
+  }
+  await runOcrFlow(frame, { barcode, rightQr })
 }
 
 // 表單存檔完成：顯示成功訊息並清空表單
 function onSaved(payload) {
-  pendingRightItems.value = []
+  scanState = createScanSession() // 下一張發票重新開始
+  clearGraceTimer()
   notice.value = null
   if (payload.kind === 'invoice') {
     const draw = drawDate(periodOf(payload.date))
@@ -232,8 +342,14 @@ function onSaved(payload) {
 // 存檔成功後重新開相機繼續掃
 function resumeScanning() {
   savedInfo.value = null
+  scanState = createScanSession()
   qrScanner.value?.start()
 }
+
+onBeforeUnmount(() => {
+  clearTimeout(noticeTimer)
+  clearGraceTimer()
+})
 
 // 最近登錄（ledger.invoices 已依日期新到舊排序）
 const recentInvoices = computed(() => ledger.invoices.slice(0, 5))
@@ -241,6 +357,7 @@ const recentInvoices = computed(() => ledger.invoices.slice(0, 5))
 const SOURCE_META = {
   qr: { icon: QrCode, label: 'QR Code 掃描' },
   barcode: { icon: Barcode, label: '一維條碼' },
+  ocr: { icon: ScanText, label: '文字辨識' },
   manual: { icon: PencilLine, label: '手動輸入' }
 }
 function sourceMeta(source) {
@@ -276,14 +393,28 @@ function sourceMeta(source) {
       <template v-if="mode === 'camera'">
         <h2 class="scanner-section-title"><ScanLine :size="18" /> 相機掃描</h2>
         <p class="scanner-intro">按「開啟相機」後對準發票條碼；需要 HTTPS 或 localhost 環境。</p>
-        <QrScanner ref="qrScanner" @decoded="onDecoded" @switch-photo="switchMode('photo')" />
+        <QrScanner
+          ref="qrScanner"
+          @decoded="onDecoded"
+          @switch-photo="switchMode('photo')"
+          @running="cameraRunning = $event"
+        />
+        <!-- QR 讀不到時的救濟：把目前畫面拍下來送後端文字辨識 -->
+        <button
+          v-if="cameraRunning && !ocrRunning"
+          type="button"
+          class="btn-secondary ocr-capture"
+          @click="captureAndOcr"
+        >
+          <ScanText :size="15" /> 讀不到？拍下來辨識文字
+        </button>
         <p v-if="notice" class="inline-notice" :class="notice.kind">{{ notice.text }}</p>
       </template>
 
       <template v-else-if="mode === 'photo'">
         <h2 class="scanner-section-title"><ImageUp :size="18" /> 拍照・上傳圖片</h2>
-        <p class="scanner-intro">拍下整張發票（條碼清楚、避免反光），會自動解析圖片中的 QR Code 與一維條碼；沒有 HTTPS 也能用。</p>
-        <label class="photo-drop" :class="{ busy: scanningImage }">
+        <p class="scanner-intro">先把發票攤平（摺痕會讓 QR Code 變形而讀不出來），手機正對發票、拍近一點，讓左下角的 QR Code 清楚對焦、避免反光。會自動解析 QR Code 與一維條碼；沒有 HTTPS 也能用。</p>
+        <label class="photo-drop" :class="{ busy: scanningImage || ocrRunning }">
           <input type="file" accept="image/*" capture="environment" hidden @change="onImageChange" />
           <span class="scan-frame">
             <span class="corner tl"></span>
@@ -292,10 +423,20 @@ function sourceMeta(source) {
             <span class="corner br"></span>
             <ImageUp :size="38" stroke-width="1.3" />
           </span>
-          <b>{{ scanningImage ? '解析中…' : '拍照或選擇圖片' }}</b>
+          <b>{{ ocrRunning ? '文字辨識中…' : scanningImage ? '解析中…' : '拍照或選擇圖片' }}</b>
           <span class="photo-hint">手機上會直接開啟相機</span>
         </label>
-        <p v-if="notice" class="inline-notice" :class="notice.kind">{{ notice.text }}</p>
+        <p v-if="notice" class="inline-notice" :class="notice.kind">
+          {{ notice.text }}
+          <button
+            v-if="notice.action === 'manual'"
+            type="button"
+            class="btn-secondary notice-action"
+            @click="switchMode('manual')"
+          >
+            <Keyboard :size="14" /> 改用手動補登
+          </button>
+        </p>
       </template>
 
       <template v-else>

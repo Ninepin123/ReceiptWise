@@ -83,14 +83,35 @@
   place-items: center;
 }
 
-/* html5-qrcode 會把 video 綁在這個 div，寬度跟著容器走 */
+/* video 自己渲染、直接填滿 stage（object-fit: cover 裁切多餘畫面） */
 .qr-stage .qr-view {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  min-height: 250px;
+  height: 100%;
+  object-fit: cover;
 }
 
-.qr-stage video {
-  display: block;
+/* 手電筒切換（裝置支援才顯示） */
+.qr-torch {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: #000000a8;
+  color: #fff;
+  cursor: pointer;
+}
+
+.qr-torch:hover {
+  background: #1b1830;
 }
 
 .qr-idle {
@@ -134,6 +155,13 @@
   justify-content: center;
   gap: 10px;
   margin-top: 16px;
+}
+
+/* QR 讀不到時的「拍下來辨識文字」按鈕（相機運作中才會出現） */
+.ocr-capture {
+  display: flex;
+  margin: 12px auto 0;
+  width: fit-content;
 }
 
 .qr-error {
@@ -584,6 +612,13 @@
 .inline-notice.warn { background: #fff7e8; color: #a06a2c; }
 .inline-notice.error { background: #fdf0ef; color: #b3564f; }
 
+/* 提示條內的動作按鈕（例如「改用手動補登」） */
+.inline-notice .notice-action {
+  flex-shrink: 0;
+  margin-left: 6px;
+  padding: 6px 10px;
+}
+
 /* ---- 手機版：單欄（<=600px 時 responsive.css 已把 .scanner-layout 變一欄） ---- */
 @media (max-width: 600px) {
   .mode-tabs {
@@ -603,8 +638,7 @@
     padding: 18px;
   }
 
-  .qr-stage,
-  .qr-stage .qr-view {
+  .qr-stage {
     min-height: 210px;
   }
 
