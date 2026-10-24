@@ -26,6 +26,7 @@ const ledger = useLedgerStore()
 const errors = ref({})
 const duplicate = ref(false)
 const amountInput = ref(null)
+const numberInput = ref(null)
 
 const LAST_CATEGORY_KEY = 'receiptwise-last-category'
 
@@ -174,12 +175,16 @@ function submit() {
   saveReceiptRecord(m)
 }
 
-// 掃到一維條碼時由父層呼叫：聚焦金額欄位
+// 由父層呼叫：聚焦欄位（一維條碼 → 金額；OCR 缺號碼 → 號碼）
 function focusAmount() {
   amountInput.value?.focus()
 }
 
-defineExpose({ focusAmount })
+function focusNumber() {
+  numberInput.value?.focus()
+}
+
+defineExpose({ focusAmount, focusNumber })
 </script>
 
 <template>
@@ -199,6 +204,7 @@ defineExpose({ focusAmount })
         <label for="cap-number">發票號碼 *</label>
         <input
           id="cap-number"
+          ref="numberInput"
           :value="modelValue.number"
           placeholder="例如：AB-12345678"
           autocomplete="off"

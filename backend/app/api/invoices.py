@@ -2,7 +2,7 @@
 import json
 import re
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import jwt_required
 
 from app.api import current_user
@@ -10,6 +10,7 @@ from app.api.transactions import normalize_uuid
 from app.errors import ApiError
 from app.extensions import db
 from app.models import Invoice, Transaction
+from app.services.invoice_ocr import OcrUnavailable, recognize_invoice
 from app.services.lottery import check_invoice
 from app.utils import (
     date_to_period,
@@ -24,7 +25,9 @@ bp = Blueprint("invoices", __name__)
 PERIOD_RE = re.compile(r"^\d{5}$")
 SELLER_ID_RE = re.compile(r"^\d{8}$")
 RANDOM_CODE_RE = re.compile(r"^\d{4}$")
-SOURCES = ("qr", "barcode", "manual")
+SOURCES = ("qr", "barcode", "manual", "ocr")
+OCR_IMAGE_MIMETYPES = {"image/jpeg", "image/png", "image/webp"}
+OCR_IMAGE_MAX_BYTES = 8 * 1024 * 1024
 
 
 def _is_number(value) -> bool:
@@ -70,7 +73,7 @@ def _validate(data: dict) -> dict:
     if source is None:
         source = "manual"
     if source not in SOURCES:
-        fields["source"] = "來源必須是 qr、barcode 或 manual"
+        fields["source"] = "來源必須是 qr、barcode、manual 或 ocr"
 
     items = data.get("items")
     if items is None:
@@ -179,6 +182,31 @@ def upsert_invoice(id: str):
     db.session.add(invoice)
     db.session.commit()
     return jsonify({"invoice": invoice.to_dict()}), status
+
+
+@bp.post("/invoices/ocr")
+@jwt_required()
+def ocr_invoice():
+    """上傳發票照片做文字辨識（multipart 欄位 image），回傳辨識出的欄位供使用者核對。"""
+    file = request.files.get("image")
+    if file is None:
+        raise ApiError("validation_error", "請上傳圖片", 400, {"image": "請上傳圖片"})
+    if file.mimetype not in OCR_IMAGE_MIMETYPES:
+        raise ApiError("validation_error", "圖片格式必須是 JPEG、PNG 或 WebP", 400, {"image": "圖片格式必須是 JPEG、PNG 或 WebP"})
+    data = file.read()
+    if len(data) > OCR_IMAGE_MAX_BYTES:
+        raise ApiError("validation_error", "圖片太大（上限 8MB）", 413, {"image": "圖片太大（上限 8MB）"})
+
+    try:
+        result = recognize_invoice(data)
+    except OcrUnavailable:
+        raise ApiError("ocr_unavailable", "伺服器沒有安裝文字辨識套件", 503)
+    except ValueError:
+        raise ApiError("validation_error", "無法讀取圖片", 400, {"image": "無法讀取圖片"})
+
+    # 只記錄花費時間，圖片內容不進 log
+    current_app.logger.info("發票照片 OCR 花費 %d ms", result["elapsedMs"])
+    return jsonify({"result": result})
 
 
 @bp.delete("/invoices/<id>")

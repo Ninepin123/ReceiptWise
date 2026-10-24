@@ -96,6 +96,12 @@ def test_amount_zero_ok(client, auth_headers):
     assert resp.get_json()["invoice"]["amount"] == 0
 
 
+def test_source_ocr_accepted(client, auth_headers):
+    resp = put_inv(client, auth_headers, source="ocr")
+    assert resp.status_code == 201
+    assert resp.get_json()["invoice"]["source"] == "ocr"
+
+
 def test_prize_fields_from_input_ignored(client, auth_headers):
     resp = put_inv(
         client, auth_headers,

@@ -24,6 +24,7 @@
 │ Flask 3 REST API                                       │
 │  api/       auth / transactions / invoices / lottery / notifications │
 │  services/  lottery.py：抓財政部 RSS、對獎規則、產生通知 │
+│  發票 OCR   RapidOCR（rapidocr_onnxruntime，選配；沒裝回 503）│
 │  models.py  SQLAlchemy                                 │
 │  SQLite（開發）→ 可用 DATABASE_URL 換 PostgreSQL        │
 │  正式環境：Flask 同時提供 frontend/dist 靜態檔          │
@@ -255,6 +256,30 @@ Invoice 物件：
 - `number` 收到時先去掉空白和 `-` 再轉大寫，然後驗證 `^[A-Z]{2}\d{8}$`。
 - `period`、`prizeStatus`、`prizeName`、`prizeAmount`、`checkedAt` 由伺服器決定，輸入的值會被忽略。
 - 新建，或 number／date 有改變時：重設對獎結果；如果資料庫已有該期獎號，立刻對獎（中獎就建立通知）。
+- `source`：`qr`（左側 QR Code）／`barcode`（一維條碼）／`ocr`（後端文字辨識）／`manual`（手動輸入），由前端帶入、原封存起來，最近登錄清單會顯示對應圖示。
+
+**POST `/api/invoices/ocr`** — 把發票照片交給後端 RapidOCR（`rapidocr_onnxruntime==1.2.3`）辨識印在發票上的文字，QR Code 讀不到時的救濟。需 JWT Bearer，`multipart/form-data` 欄位 `image`（JPEG/PNG/WebP，≤ 8MB）。
+
+200 回：
+```json
+{
+  "result": {
+    "number": "FL70604278",
+    "date": "2026-10-10",
+    "randomCode": "7596",
+    "totalAmount": 70,
+    "sellerId": "00087966",
+    "period": "11509",
+    "invoiceType": "electronic",
+    "found": true,
+    "missing": [],
+    "elapsedMs": 2300
+  }
+}
+```
+讀不到的欄位是 `null`。錯誤格式統一為 `{ "error": code, "message": "中文說明" }`：`400 validation_error`（沒有圖檔等）、`413`（超過 8MB）、`503 ocr_unavailable`（伺服器沒裝 OCR 套件）、`401`（未登入）。
+
+OCR 會讀錯，所以後端會驗證統編檢查碼、日期是否在期別內，讀不到就留 null，交給前端提示使用者補。
 
 ### 4.4 Lottery
 
@@ -452,9 +477,16 @@ Notification 物件：`{ "id": 3, "type": "lottery_win", "title": "...", "body":
 - 底部導覽 5 格：總覽、收支、**掃描（中間凸起的主要按鈕）**、發票、對獎。設定從頂部頭像進入。
 - 頂部列顯示同步狀態（已同步／同步中／離線，N 筆待同步）和通知鈴鐺。
 
-### 相機注意事項
-- `getUserMedia` 只能在 HTTPS 或 localhost 使用。手機用區網 IP（http）開啟時，相機掃描無法使用，要改用 `<input type="file" accept="image/*" capture="environment">` 拍照，再用 html5-qrcode 的 `scanFile` 解析。
-- 離開頁面時一定要停止相機。
+### 相機與條碼解析注意事項
+- 條碼解碼引擎是 `zxing-wasm`（`src/utils/barcodeReader.js` 包裝，讀 QR Code 與 Code 39）。wasm 檔由 Vite 打包輸出、跟著 PWA 預快取（不打 CDN），離線也能掃；瀏覽器支援原生 `BarcodeDetector` 時（Android Chrome）優先用原生偵測，zxing-wasm 當備援。
+- 相機（`components/QrScanner.vue`）用 `getUserMedia` 要求 1920×1080 與後鏡頭，畫面以**原始解析度**畫進 canvas 再解碼（電子發票的 QR Code 很密，縮成掃描框的 CSS 尺寸會解不出來）；支援時開啟連續自動對焦與手電筒切換。
+- 相機解碼邏輯在 `src/utils/scanSession.js`：讀到左側 QR 立即採用（右側 QR 品目同一個只合併一次）；只讀到右側 QR 時暫存品目（同一個取代、不累加）繼續掃；只讀到一維條碼時給 **1500ms 寬限期**找左側 QR，等不到才用一維條碼（沒有金額、日期用猜的）。
+- 拍照・上傳（`src/utils/imageScan.js`）用**原圖解析度**解（最長邊超過 4000 才縮，避免 48MP 照片吃光記憶體），失敗時依序重試：對比加強（第 2／98 百分位灰階拉伸）、裁左右半邊、縮到最長邊 2000。
+- 熱感紙的摺痕或捲曲會讓 QR Code 變形，標準解碼器都假設 QR 是平的、讀不出變形的圖，所以要引導使用者先把發票攤平再拍。
+- 條碼真的讀不到時（摺痕、反光）改用後端文字辨識（`src/utils/invoiceOcr.js`）：拍照模式解不到左側 QR 就自動送 OCR；相機模式按「讀不到？拍下來辨識文字」截圖送 OCR。圖先縮到最長邊 2400 再上傳；一維條碼與右側 QR 有解到就優先用（條碼比 OCR 可靠），右側 QR 的品目也會一併帶入。結果經 `buildOcrForm` 合併後填表，`source` 記成 `ocr`，並提示沒讀到或推測（日期從期別推）的欄位、聚焦第一個缺的欄位——**OCR 會讀錯，一律要使用者核對後再儲存**。OCR 失敗但同張圖有一維條碼時退回條碼結果。
+- 傳統統一發票（收銀機、手開）**沒有條碼**，掃不到是正常的，只能手動補登。
+- `getUserMedia` 只能在 HTTPS 或 localhost 使用。手機用區網 IP（http）開啟時，相機掃描無法使用，要改用 `<input type="file" accept="image/*" capture="environment">` 拍照解析。
+- 離開頁面時一定要停止相機（停掉所有 track）。
 
 ---
 

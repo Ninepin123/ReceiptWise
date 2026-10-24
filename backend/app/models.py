@@ -75,7 +75,7 @@ class Invoice(db.Model):
     seller_id = db.Column(db.String(8), nullable=False, default="")
     random_code = db.Column(db.String(4), nullable=False, default="")
     items = db.Column(db.Text, nullable=False, default="[]")  # JSON 字串
-    source = db.Column(db.String(10), nullable=False, default="manual")  # qr / barcode / manual
+    source = db.Column(db.String(10), nullable=False, default="manual")  # qr / barcode / manual / ocr
     prize_status = db.Column(db.String(10), nullable=False, default="pending")
     prize_name = db.Column(db.String(20), nullable=True)
     prize_amount = db.Column(db.Integer, nullable=False, default=0)

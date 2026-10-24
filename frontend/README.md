@@ -7,7 +7,7 @@ Vue 3 單頁應用程式，串接 `../backend` 的 Flask REST API。啟動方式
 - Vue 3（`<script setup>`）、Vue Router 4、Pinia
 - Vite 6、vite-plugin-pwa（可安裝到手機桌面、離線開啟）
 - Chart.js + vue-chartjs（儀表板圖表）
-- html5-qrcode（相機與圖片條碼解析；瀏覽器支援時優先用原生 BarcodeDetector）
+- zxing-wasm（相機與圖片條碼解析，wasm 隨 PWA 打包、離線可用；瀏覽器支援時優先用原生 BarcodeDetector）
 - lucide-vue-next（圖示）
 - Vitest（單元測試）
 
