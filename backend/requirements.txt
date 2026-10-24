@@ -4,4 +4,6 @@ Flask-JWT-Extended>=4.7,<5
 Flask-CORS>=5.0,<7
 requests>=2.32,<3
 tzdata>=2024.1
+# 發票照片文字辨識（PaddleOCR 的 ONNX 版）
+rapidocr_onnxruntime==1.2.3
 pytest>=8.3,<9

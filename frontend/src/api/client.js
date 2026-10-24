@@ -31,20 +31,17 @@ function handleUnauthorized() {
 }
 
 /**
- * 發送 API 請求。成功回傳解析後的 JSON（204 回 null）；
- * 伺服器錯誤丟 ApiError；連不上丟 NetworkError。
+ * 送出 fetch 的共用部分：帶 token、解析 JSON、統一錯誤處理。
+ * headers 由呼叫端給（JSON 要設 Content-Type，multipart 不能設）。
  */
-export async function request(method, path, body) {
+async function send(path, { method = 'GET', headers, body } = {}) {
   const token = localStorage.getItem(STORAGE_KEYS.token)
   let res
   try {
     res = await fetch(`/api${path}`, {
       method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      },
-      body: body === undefined ? undefined : JSON.stringify(body)
+      headers: { ...(headers || {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body
     })
   } catch {
     throw new NetworkError()
@@ -67,10 +64,31 @@ export async function request(method, path, body) {
   return data
 }
 
-/** 方便的包裝：api.get(path) / api.post(path, body) / api.put / api.del。 */
+/**
+ * 發送 API 請求。成功回傳解析後的 JSON（204 回 null）；
+ * 伺服器錯誤丟 ApiError；連不上丟 NetworkError。
+ */
+export async function request(method, path, body) {
+  return send(path, {
+    method,
+    headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body)
+  })
+}
+
+/**
+ * 上傳 multipart/form-data（例如 OCR 圖片）。
+ * 不設 Content-Type，讓瀏覽器自己帶 multipart boundary。
+ */
+export async function upload(path, formData) {
+  return send(path, { method: 'POST', body: formData })
+}
+
+/** 方便的包裝：api.get(path) / api.post(path, body) / api.put / api.del / api.upload。 */
 export const api = {
   get: (path) => request('GET', path),
   post: (path, body) => request('POST', path, body),
   put: (path, body) => request('PUT', path, body),
-  del: (path) => request('DELETE', path)
+  del: (path) => request('DELETE', path),
+  upload: (path, formData) => upload(path, formData)
 }

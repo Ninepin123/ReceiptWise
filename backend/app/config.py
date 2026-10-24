@@ -21,6 +21,9 @@ class Config:
 
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=30)
 
+    # multipart 請求上限 10MB（發票 OCR 圖片本身再限制 8MB，留點頭尾空間）
+    MAX_CONTENT_LENGTH = 10 * 1024 * 1024
+
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or (
         "sqlite:///" + os.path.join(INSTANCE_DIR, "receiptwise.db").replace("\\", "/")
     )
