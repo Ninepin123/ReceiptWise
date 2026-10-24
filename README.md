@@ -69,6 +69,24 @@ cd frontend && npm test                            # 條碼解析、期別換算
 4. 一定要用 HTTPS，相機掃描和 PWA 安裝才會正常。
 5. 獎號會在有人打開對獎頁時自動檢查是否需要更新（最多每 6 小時抓一次）。想讓開獎當天就自動對獎並通知，可以用系統排程每天執行 `flask --app wsgi lottery-sync`。
 
+### 用 Docker / Coolify 部署
+
+根目錄的 `Dockerfile` 是多階段建置：先建置前端，再用 gunicorn 跑後端、同時提供前端靜態檔；SQLite 資料放在 `/app/backend/instance`。
+
+```bash
+docker build -t receiptwise .
+docker run -d -p 5000:5000 \
+  -e SECRET_KEY=$(openssl rand -hex 32) -e JWT_SECRET_KEY=$(openssl rand -hex 32) \
+  -v receiptwise-data:/app/backend/instance receiptwise
+```
+
+Coolify 設定：
+
+- Build Pack 選 **Dockerfile**。
+- Ports Exposes 填 `5000`。
+- 環境變數至少設 `SECRET_KEY`、`JWT_SECRET_KEY`（亂數長字串，可用 `openssl rand -hex 32` 產生）。
+- Persistent Storage 掛載路徑 `/app/backend/instance`；不掛的話每次重新部署，SQLite 資料都會消失。
+
 ## 獎號資料來源
 
 財政部稅務入口網的統一發票中獎號碼 RSS（`https://invoice.etax.nat.gov.tw/invoice.xml`），提供最近 6 期。中獎結果僅供參考，請以財政部公告為準。
