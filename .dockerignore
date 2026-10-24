@@ -1,0 +1,25 @@
+# 版本控制
+.git
+.gitignore
+
+# 依賴與快取（映像內會重新安裝）
+**/node_modules
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+
+# 前端建置產物（Dockerfile 內會重新建置）
+frontend/dist
+
+# 本機資料庫與機密，不要打包進映像
+backend/instance
+**/*.db
+**/.env
+**/.env.*
+!backend/.env.example
+
+# 映像執行用不到的內容
+docs
+backend/tests
+README.md
